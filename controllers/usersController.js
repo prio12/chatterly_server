@@ -1,13 +1,21 @@
-//post all users when signs up
-async function postAllUsers(req, res, next) {
-  console.log(req.body);
-}
+const User = require('../models/usersModel');
 
-async function getAllUsers(req, res, next) {
-  res.send('hello from get all routes');
+//post all users when signs up
+async function addNewUser(req, res, next) {
+  const user = new User(req.body);
+  //saving the user to db
+  try {
+    const result = await user.save();
+    res.status(200).json({
+      result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Unknown error occurred!',
+    });
+  }
 }
 
 module.exports = {
-  postAllUsers,
-  getAllUsers,
+  addNewUser,
 };

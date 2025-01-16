@@ -1,12 +1,11 @@
 //external imports
 const express = require('express');
-const { postAllUsers, getAllUsers } = require('../controllers/usersController');
+const { addNewUser, getAllUsers } = require('../controllers/usersController');
 
 //internal imports
 
 const router = express.Router();
 
-router.post('/users', postAllUsers);
-router.get('/users', getAllUsers);
+router.post('/users', addNewUser);
 
 module.exports = router;
