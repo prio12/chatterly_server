@@ -18,6 +18,19 @@ const usersSchema = new Schema(
       type: String,
       required: true,
     },
+    profilePicture: {
+      type: String,
+      default: '',
+    },
+    coverPhoto: {
+      type: String,
+      default: '',
+    },
+    bio: {
+      type: String,
+      default: '',
+      trim: true,
+    },
   },
   {
     timestamps: true,
