@@ -16,9 +16,31 @@ async function addNewUser(req, res, next) {
   }
 }
 
+//get user Specific info by uid
+async function getUserByUid(req, res, next) {
+  const query = { uid: req.params.uid };
+  try {
+    const user = await User.findOne(query);
+
+    if (!user) {
+      return res.status(404).json({
+        error: 'User Not Found',
+      });
+    }
+    res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error: 'Oops!! Server Side Error!',
+    });
+  }
+}
+
 //update any field of a specific user eg:(profile pic, cover photo, bio)
 async function updateUserInfo(req, res, next) {
-  const query = { uid: req.params.id };
+  const query = { uid: req.params.uid };
   const updates = {};
   if (req.body.profilePicture) {
     updates.profilePicture = req.body.profilePicture;
@@ -54,4 +76,5 @@ async function updateUserInfo(req, res, next) {
 module.exports = {
   addNewUser,
   updateUserInfo,
+  getUserByUid,
 };
