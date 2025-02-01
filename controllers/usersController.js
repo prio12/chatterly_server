@@ -40,18 +40,16 @@ async function getUserByUid(req, res, next) {
 
 //update any field of a specific user eg:(profile pic, cover photo, bio)
 async function updateUserInfo(req, res, next) {
-  console.log(req.body);
+  //defining allowed updates
+  const allowedUpdateFields = ['name', 'profilePicture', 'coverPhoto'];
   const query = { uid: req.params.uid };
   const updates = {};
-  if (req.body.profilePicture) {
-    updates.profilePicture = req.body.profilePicture;
-  }
-  if (req.body.coverPhoto) {
-    updates.coverPhoto = req.body.coverPhoto;
-  }
 
-  if (req.body.name) {
-    updates.name = req.body.name;
+  //checking if the updates from the client exist in allowed updates and setting up the updates obj
+  for (const field of allowedUpdateFields) {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
   }
 
   try {
