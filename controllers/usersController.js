@@ -40,6 +40,7 @@ async function getUserByUid(req, res, next) {
 
 //update any field of a specific user eg:(profile pic, cover photo, bio)
 async function updateUserInfo(req, res, next) {
+  console.log(req.body);
   const query = { uid: req.params.uid };
   const updates = {};
   if (req.body.profilePicture) {
@@ -47,6 +48,10 @@ async function updateUserInfo(req, res, next) {
   }
   if (req.body.coverPhoto) {
     updates.coverPhoto = req.body.coverPhoto;
+  }
+
+  if (req.body.name) {
+    updates.name = req.body.name;
   }
 
   try {
@@ -60,7 +65,7 @@ async function updateUserInfo(req, res, next) {
         error: 'User Not Found',
       });
     }
-    console.log(user);
+
     res.status(200).json({
       message: 'Updated Successfully!',
       user,
