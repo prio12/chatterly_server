@@ -31,6 +31,31 @@ const usersSchema = new Schema(
       default: '',
       trim: true,
     },
+    gender: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    profession: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    relationshipStatus: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    birthDate: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    location: {
+      type: String,
+      default: '',
+      trim: true,
+    },
   },
   {
     timestamps: true,
