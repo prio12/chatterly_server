@@ -14,7 +14,8 @@ const postsSchema = new Schema(
     },
     content: {
       type: String,
-      required: true,
+      default: '',
+      trim: true,
     },
     img: {
       type: String,

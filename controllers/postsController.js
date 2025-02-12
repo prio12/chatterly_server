@@ -4,11 +4,19 @@ const User = require('../models/usersModel');
 //creating a new post and saving in db
 async function createAPost(req, res) {
   //destructuring from req.body
-  const { author, content } = req.body;
+  const { author, content, img } = req.body;
 
-  if (!author || !content) {
+  console.log(req.body);
+
+  if (!author) {
     return res.status(400).json({
-      error: 'Content and AuthorId are required',
+      error: 'Author ID is required',
+    });
+  }
+
+  if (!content && !img) {
+    return res.status(400).json({
+      error: 'Either content or an image is required',
     });
   }
 
