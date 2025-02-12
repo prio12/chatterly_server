@@ -24,7 +24,6 @@ const postsSchema = new Schema(
       {
         type: Schema.Types.ObjectId, // Store UID of users who liked the post
         ref: 'User',
-        unique: true,
       },
     ],
     comments: [
