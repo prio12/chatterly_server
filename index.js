@@ -13,6 +13,7 @@ app.use(cors());
 
 //internal imports
 const usersRoute = require('./routers/users');
+const postsRoute = require('./routers/posts');
 
 //connect to database
 const connectDatabase = async () => {
@@ -26,6 +27,7 @@ connectDatabase();
 
 //all routes
 app.use('/', usersRoute);
+app.use('/posts', postsRoute);
 
 app.listen(process.env.PORT, () => {
   console.log(`server is running on port ${process.env.PORT}`);
