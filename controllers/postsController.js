@@ -45,7 +45,17 @@ async function createAPost(req, res) {
 }
 
 async function getAllPosts(req, res) {
-  console.log('Hitting on server');
+  try {
+    const result = await Post.find({}).populate('author');
+    res.status(200).json({
+      result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error. Please try again later.',
+    });
+  }
 }
 
 module.exports = {
