@@ -44,6 +44,11 @@ async function createAPost(req, res) {
   }
 }
 
+async function getAllPosts(req, res) {
+  console.log('Hitting on server');
+}
+
 module.exports = {
   createAPost,
+  getAllPosts,
 };
