@@ -32,6 +32,11 @@ async function createAPost(req, res) {
   try {
     const newPost = new Post(req.body);
     const result = await newPost.save();
+
+    await User.findByIdAndUpdate(author, {
+      $push: { posts: result._id },
+    });
+
     if (result) {
       res.status(200).json({
         result,
@@ -46,7 +51,9 @@ async function createAPost(req, res) {
 
 async function getAllPosts(req, res) {
   try {
-    const result = await Post.find({}).populate('author');
+    const result = await Post.find({})
+      .populate('author')
+      .sort({ createdAt: -1 });
     res.status(200).json({
       result,
     });
