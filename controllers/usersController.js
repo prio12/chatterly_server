@@ -19,10 +19,12 @@ async function addNewUser(req, res, next) {
 //get user Specific info by uid
 async function getUserByUid(req, res, next) {
   const query = { uid: req.params.uid };
+  console.log(req.params.uid);
   try {
     const user = await User.findOne(query).populate({
       path: 'posts',
       options: { sort: { createdAt: -1 } },
+      populate: { path: 'author', select: 'name profilePicture' },
     });
 
     if (!user) {
