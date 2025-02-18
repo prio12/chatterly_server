@@ -20,7 +20,10 @@ async function addNewUser(req, res, next) {
 async function getUserByUid(req, res, next) {
   const query = { uid: req.params.uid };
   try {
-    const user = await User.findOne(query).populate('posts');
+    const user = await User.findOne(query).populate({
+      path: 'posts',
+      options: { sort: { createdAt: -1 } },
+    });
 
     if (!user) {
       return res.status(404).json({
