@@ -6,8 +6,6 @@ async function createAPost(req, res) {
   //destructuring from req.body
   const { author, content, img } = req.body;
 
-  console.log(req.body);
-
   if (!author) {
     return res.status(400).json({
       error: 'Author ID is required',
@@ -49,6 +47,7 @@ async function createAPost(req, res) {
   }
 }
 
+//get all posts
 async function getAllPosts(req, res) {
   try {
     const result = await Post.find({})
@@ -65,7 +64,42 @@ async function getAllPosts(req, res) {
   }
 }
 
+//update a specific post
+async function updateAPost(req, res) {
+  const _id = req.params.id;
+  const updatedDoc = {
+    $set: {
+      content: req.body.content,
+    },
+  };
+
+  try {
+    const postExists = await Post.findById(_id);
+
+    if (!postExists) {
+      res.status(400).json({
+        success: false,
+        error: 'Post Not Found!!',
+      });
+    }
+
+    const response = await Post.findByIdAndUpdate(_id, updatedDoc, {
+      new: true,
+    });
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error',
+    });
+  }
+}
+
 module.exports = {
   createAPost,
   getAllPosts,
+  updateAPost,
 };

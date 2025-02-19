@@ -19,12 +19,11 @@ async function addNewUser(req, res, next) {
 //get user Specific info by uid
 async function getUserByUid(req, res, next) {
   const query = { uid: req.params.uid };
-  console.log(req.params.uid);
   try {
     const user = await User.findOne(query).populate({
       path: 'posts',
       options: { sort: { createdAt: -1 } },
-      populate: { path: 'author', select: 'name profilePicture' },
+      populate: { path: 'author', select: 'name profilePicture uid' },
     });
 
     if (!user) {
@@ -36,7 +35,6 @@ async function getUserByUid(req, res, next) {
       user,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       error: 'Oops!! Server Side Error!',
     });
@@ -84,7 +82,6 @@ async function updateUserInfo(req, res, next) {
       user,
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       error: 'Oops!! Server Side Error!',
     });
