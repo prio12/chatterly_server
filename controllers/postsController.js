@@ -77,7 +77,7 @@ async function updateAPost(req, res) {
     const postExists = await Post.findById(_id);
 
     if (!postExists) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         error: 'Post Not Found!!',
       });
@@ -100,7 +100,37 @@ async function updateAPost(req, res) {
 
 //delete a specific post
 async function deleteAPost(req, res) {
-  console.log(req.params.id);
+  const postId = req.params.id;
+
+  try {
+    //find the post
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post not found!',
+      });
+    }
+    const authorId = post.author;
+
+    //deleting the post from postCollection
+    await Post.findByIdAndDelete(postId);
+
+    //Remove the post reference from the correct user's (author's) posts array
+    await User.findByIdAndUpdate(authorId, {
+      $pull: { posts: postId },
+    });
+
+    //sending response
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Internal Server Error!',
+    });
+  }
 }
 
 module.exports = {
