@@ -98,8 +98,14 @@ async function updateAPost(req, res) {
   }
 }
 
+//delete a specific post
+async function deleteAPost(req, res) {
+  console.log(req.params.id);
+}
+
 module.exports = {
   createAPost,
   getAllPosts,
   updateAPost,
+  deleteAPost,
 };

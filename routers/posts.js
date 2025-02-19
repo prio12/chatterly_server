@@ -4,6 +4,7 @@ const {
   createAPost,
   getAllPosts,
   updateAPost,
+  deleteAPost,
 } = require('../controllers/postsController');
 
 const router = express.Router();
@@ -16,5 +17,8 @@ router.get('/', getAllPosts);
 
 //update a post
 router.patch('/:id', updateAPost);
+
+//delete a post
+router.delete('/:id', deleteAPost);
 
 module.exports = router;
