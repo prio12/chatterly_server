@@ -134,10 +134,11 @@ async function deleteAPost(req, res) {
 }
 
 //updating likeCount of a post and also notification using socket.io in realtime
-async function handleLikeAndNotify({ userId, postId, callback }) {
+async function handleLikeAndNotify({ userId, postId, action, callback }) {
   try {
     const post = await Post.findById(postId);
-    //checking if the post exists!
+    const user = await User.findById(userId);
+
     if (!post) {
       return callback({
         success: false,
@@ -145,32 +146,62 @@ async function handleLikeAndNotify({ userId, postId, callback }) {
       });
     }
 
-    //checking if the user has already liked the post
-    const hasLiked = post.likes.includes(userId);
-    if (hasLiked) {
+    if (!user) {
       return callback({
         success: false,
-        error: 'User has liked the post already!',
+        error: 'User not found!',
       });
     }
 
-    //add likes
-    post.likes.push(userId);
-    await post.save();
+    const hasLiked = post.likes.includes(userId);
 
-    //finding user to update his likedPosts
-    const user = await User.findById(userId);
+    // Handle dislike (unlike) action
+    if (action === 'dislike' && hasLiked) {
+      // Convert to string to ensure proper comparison/removal
+      post.likes = post.likes.filter(
+        (id) => id.toString() !== userId.toString()
+      );
+      user.likedPosts = user.likedPosts.filter(
+        (id) => id.toString() !== postId.toString()
+      );
 
-    if (!user)
+      await post.save();
+      await user.save();
+
       return callback({
-        success: false,
-        error: 'User not Found!',
+        success: true,
+        liked: false,
+        likes: post.likes,
       });
+    }
 
-    user.likedPosts.push(postId);
-    await user.save();
-  } catch (error) {}
+    // Handle like action
+    if (action === 'like' && !hasLiked) {
+      post.likes.push(userId);
+      user.likedPosts.push(postId);
+
+      await post.save();
+      await user.save();
+
+      return callback({
+        success: true,
+        liked: true,
+        likes: post.likes,
+      });
+    }
+
+    // If no action was taken (already liked/unliked)
+    return callback({
+      success: false,
+      error: action === 'like' ? 'Already liked' : 'Not liked yet',
+      likes: post.likes,
+    });
+  } catch (error) {
+    console.error('Error in handleLikeAndNotify:', error);
+    return callback({ success: false, error: 'Something went wrong!' });
+  }
 }
+
 module.exports = {
   createAPost,
   getAllPosts,

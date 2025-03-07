@@ -21,8 +21,8 @@ const initializeSocket = (httpServer) => {
     });
 
     // Handle like event (updating likes) and notification saving event in db
-    socket.on('liked', ({ userId, postId }, callback) => {
-      handleLikeAndNotify({ userId, postId, callback });
+    socket.on('liked', ({ userId, postId, action }, callback) => {
+      handleLikeAndNotify({ userId, postId, action, callback });
     });
   });
 
