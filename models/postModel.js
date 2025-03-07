@@ -21,6 +21,10 @@ const postsSchema = new Schema(
       type: String,
       default: '',
     },
+    video: {
+      type: String,
+      default: '',
+    },
     likes: [
       {
         type: Schema.Types.ObjectId, // Store UID of users who liked the post

@@ -4,7 +4,7 @@ const User = require('../models/usersModel');
 //creating a new post and saving in db
 async function createAPost(req, res) {
   //destructuring from req.body
-  const { author, content, img } = req.body;
+  const { author, content, img, video } = req.body;
 
   if (!author) {
     return res.status(400).json({
@@ -12,9 +12,9 @@ async function createAPost(req, res) {
     });
   }
 
-  if (!content && !img) {
+  if (!content && !img && !video) {
     return res.status(400).json({
-      error: 'Either content or an image is required',
+      error: 'Either content or an image or a video  is required',
     });
   }
 
@@ -133,9 +133,48 @@ async function deleteAPost(req, res) {
   }
 }
 
+//updating likeCount of a post and also notification using socket.io in realtime
+async function handleLikeAndNotify({ userId, postId, callback }) {
+  try {
+    const post = await Post.findById(postId);
+    //checking if the post exists!
+    if (!post) {
+      return callback({
+        success: false,
+        error: 'Post not found!',
+      });
+    }
+
+    //checking if the user has already liked the post
+    const hasLiked = post.likes.includes(userId);
+    if (hasLiked) {
+      return callback({
+        success: false,
+        error: 'User has liked the post already!',
+      });
+    }
+
+    //add likes
+    post.likes.push(userId);
+    await post.save();
+
+    //finding user to update his likedPosts
+    const user = await User.findById(userId);
+
+    if (!user)
+      return callback({
+        success: false,
+        error: 'User not Found!',
+      });
+
+    user.likedPosts.push(postId);
+    await user.save();
+  } catch (error) {}
+}
 module.exports = {
   createAPost,
   getAllPosts,
   updateAPost,
   deleteAPost,
+  handleLikeAndNotify,
 };
