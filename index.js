@@ -17,9 +17,10 @@ app.use(cors());
 //internal imports
 const usersRoute = require('./routers/users');
 const postsRoute = require('./routers/posts');
-const initializeSocket = require('./socketServer');
+const { initializeSocket } = require('./socketServer');
 
-const io = initializeSocket(httpServer);
+//initializeSocket
+initializeSocket(httpServer);
 
 //connect to database
 const connectDatabase = async () => {
