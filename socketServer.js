@@ -28,7 +28,7 @@ const initializeSocket = (httpServer) => {
   });
 };
 
-//function to get io instance
+//getter function to get io instance
 const getIo = () => {
   if (!io) {
     throw new Error('Socket.io not initialized');
@@ -36,7 +36,13 @@ const getIo = () => {
   return io;
 };
 
+// getter function to get stored Users
+const getUsers = () => {
+  return users;
+};
+
 module.exports = {
   initializeSocket,
   getIo,
+  getUsers,
 };

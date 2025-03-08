@@ -183,6 +183,10 @@ async function handleLikeAndNotify({ userId, postId, action, callback }) {
       await post.save();
       await user.save();
 
+      //  Lazy import here to break the circular dependency
+      const { handleLikedNotification } = require('./notificationsController');
+      handleLikedNotification({ post, userId });
+
       return callback({
         success: true,
         liked: true,
