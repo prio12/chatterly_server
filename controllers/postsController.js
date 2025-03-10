@@ -134,7 +134,13 @@ async function deleteAPost(req, res) {
 }
 
 //updating likeCount of a post and also notification using socket.io in realtime
-async function handleLikeAndNotify({ userId, postId, action, callback }) {
+async function handleLikeAndNotify({
+  userId,
+  postId,
+  action,
+  authorUid,
+  callback,
+}) {
   try {
     const post = await Post.findById(postId);
     const user = await User.findById(userId);
@@ -185,7 +191,7 @@ async function handleLikeAndNotify({ userId, postId, action, callback }) {
 
       //  Lazy import here to break the circular dependency
       const { handleLikedNotification } = require('./notificationsController');
-      handleLikedNotification({ post, userId });
+      handleLikedNotification({ post, userId, authorUid, user });
 
       return callback({
         success: true,
