@@ -17,6 +17,7 @@ app.use(cors());
 //internal imports
 const usersRoute = require('./routers/users');
 const postsRoute = require('./routers/posts');
+const notificationsRoute = require('./routers/notifications');
 const { initializeSocket } = require('./socketServer');
 
 //initializeSocket
@@ -35,6 +36,7 @@ connectDatabase();
 //all routes
 app.use('/', usersRoute);
 app.use('/posts', postsRoute);
+app.use('/notifications', notificationsRoute);
 
 httpServer.listen(process.env.PORT, () => {
   console.log(`server is running on port ${process.env.PORT}`);

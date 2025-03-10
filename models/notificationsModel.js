@@ -33,6 +33,11 @@ const notificationsSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  seen: {
+    type: Boolean,
+    default: false,
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,
