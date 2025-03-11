@@ -64,6 +64,23 @@ async function getAllPosts(req, res) {
   }
 }
 
+//get a specific post
+async function getSpecificPostDetails(req, res) {
+  const postId = req.params.id;
+  try {
+    const response = await Post.findById(postId);
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error!',
+    });
+  }
+}
+
 //update a specific post
 async function updateAPost(req, res) {
   const _id = req.params.id;
@@ -218,4 +235,5 @@ module.exports = {
   updateAPost,
   deleteAPost,
   handleLikeAndNotify,
+  getSpecificPostDetails,
 };

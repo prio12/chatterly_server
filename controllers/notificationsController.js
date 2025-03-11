@@ -49,7 +49,46 @@ async function getUserSpecificNotifications(req, res) {
   }
 }
 
+//handle mark as seen
+async function handleMarkAsSeen(req, res) {
+  try {
+    const response = await Notification.updateMany(
+      {
+        recipient: req.params.id,
+      },
+      { seen: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Marked as seen successfully!',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error!',
+    });
+  }
+}
+
+async function deleteANotification(req, res) {
+  try {
+    const response = await Notification.findByIdAndDelete(req.params.id);
+    res.status(200).json({
+      success: true,
+      message: 'Notification Deleted',
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error!',
+    });
+  }
+}
+
 module.exports = {
   handleLikedNotification,
   getUserSpecificNotifications,
+  handleMarkAsSeen,
+  deleteANotification,
 };
