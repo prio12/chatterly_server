@@ -40,6 +40,12 @@ async function createAPost(req, res) {
         result,
       });
     }
+
+    const { getIo } = require('../socketServer'); // imports here to get rid of circular dependency
+
+    //get io instance
+    const io = getIo();
+    io.emit('newPost', result);
   } catch (error) {
     res.status(400).json({
       error: error.message,

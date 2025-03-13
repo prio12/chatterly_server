@@ -23,7 +23,15 @@ async function getUserByUid(req, res, next) {
     const user = await User.findOne(query).populate({
       path: 'posts',
       options: { sort: { createdAt: -1 } },
-      populate: { path: 'author', select: 'name profilePicture uid' },
+      populate: [
+        {
+          path: 'author',
+          select: 'name profilePicture uid likes',
+        },
+        {
+          path: 'likes',
+        },
+      ],
     });
 
     if (!user) {

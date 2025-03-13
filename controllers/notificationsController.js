@@ -19,8 +19,6 @@ async function handleLikedNotification({ post, userId, user, authorUid }) {
   //saving the notification in db
   const savedNotification = await notification.save();
 
-  const notificationSender = user.name;
-
   //checking if the author of the post (who will get notification) is online with socketId
   const authorSocketId = users.get(authorUid);
   if (authorSocketId) {
