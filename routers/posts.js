@@ -6,6 +6,7 @@ const {
   updateAPost,
   deleteAPost,
   getSpecificPostDetails,
+  handleLikeAndNotify,
 } = require('../controllers/postsController');
 
 const router = express.Router();
@@ -24,5 +25,8 @@ router.patch('/:id', updateAPost);
 
 //delete a post
 router.delete('/:id', deleteAPost);
+
+//update like of a specific post
+router.patch('/likes/:id', handleLikeAndNotify);
 
 module.exports = router;

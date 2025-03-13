@@ -52,6 +52,7 @@ async function getAllPosts(req, res) {
   try {
     const result = await Post.find({})
       .populate('author')
+      .populate('likes')
       .sort({ createdAt: -1 });
     res.status(200).json({
       result,
@@ -68,7 +69,10 @@ async function getAllPosts(req, res) {
 async function getSpecificPostDetails(req, res) {
   const postId = req.params.id;
   try {
-    const response = await Post.findById(postId);
+    const response = await Post.findById(postId)
+      .populate('author')
+      .populate('likes');
+
     res.status(200).json({
       success: true,
       response,
@@ -151,26 +155,22 @@ async function deleteAPost(req, res) {
 }
 
 //updating likeCount of a post and also notification using socket.io in realtime
-async function handleLikeAndNotify({
-  userId,
-  postId,
-  action,
-  authorUid,
-  callback,
-}) {
+async function handleLikeAndNotify(req, res) {
+  const postId = req.params.id;
+  const { userId, action, authorUid } = req.body;
   try {
     const post = await Post.findById(postId);
     const user = await User.findById(userId);
 
     if (!post) {
-      return callback({
+      return res.status(400).json({
         success: false,
         error: 'Post not found!',
       });
     }
 
     if (!user) {
-      return callback({
+      return res.status(400).json({
         success: false,
         error: 'User not found!',
       });
@@ -179,7 +179,7 @@ async function handleLikeAndNotify({
     const hasLiked = post.likes.includes(userId);
 
     // Handle dislike (unlike) action
-    if (action === 'dislike' && hasLiked) {
+    if (action === 'unLike' && hasLiked) {
       // Convert to string to ensure proper comparison/removal
       post.likes = post.likes.filter(
         (id) => id.toString() !== userId.toString()
@@ -191,10 +191,11 @@ async function handleLikeAndNotify({
       await post.save();
       await user.save();
 
-      return callback({
+      res.status(200).json({
         success: true,
         liked: false,
         likes: post.likes,
+        post: post,
       });
     }
 
@@ -210,22 +211,16 @@ async function handleLikeAndNotify({
       const { handleLikedNotification } = require('./notificationsController');
       handleLikedNotification({ post, userId, authorUid, user });
 
-      return callback({
+      res.status(200).json({
         success: true,
         liked: true,
         likes: post.likes,
+        post: post,
       });
     }
-
-    // If no action was taken (already liked/unliked)
-    return callback({
-      success: false,
-      error: action === 'like' ? 'Already liked' : 'Not liked yet',
-      likes: post.likes,
-    });
   } catch (error) {
     console.error('Error in handleLikeAndNotify:', error);
-    return callback({ success: false, error: 'Something went wrong!' });
+    res.status({ success: false, error: 'Something went wrong!' });
   }
 }
 
