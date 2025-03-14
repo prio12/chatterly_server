@@ -1,8 +1,14 @@
 const Post = require('../models/postModel');
 const User = require('../models/usersModel');
 
+let ioInstance; // File-level variable to store the io instance
+
 //creating a new post and saving in db
 async function createAPost(req, res) {
+  if (!ioInstance) {
+    const { getIo } = require('../socketServer'); // Lazy import
+    ioInstance = getIo(); // Store the instance
+  }
   //destructuring from req.body
   const { author, content, img, video } = req.body;
 
@@ -41,11 +47,8 @@ async function createAPost(req, res) {
       });
     }
 
-    const { getIo } = require('../socketServer'); // imports here to get rid of circular dependency
-
-    //get io instance
-    const io = getIo();
-    io.emit('newPost', result);
+    //emit the event to broadcast the new post to all connected users
+    ioInstance.emit('newPost', result);
   } catch (error) {
     res.status(400).json({
       error: error.message,
@@ -162,6 +165,10 @@ async function deleteAPost(req, res) {
 
 //updating likeCount of a post and also notification using socket.io in realtime
 async function handleLikeAndNotify(req, res) {
+  if (!ioInstance) {
+    const { getIo } = require('../socketServer'); // Lazy import
+    ioInstance = getIo(); // Reuse the stored instance
+  }
   const postId = req.params.id;
   const { userId, action, authorUid } = req.body;
   try {
@@ -224,6 +231,8 @@ async function handleLikeAndNotify(req, res) {
         post: post,
       });
     }
+    //emitting an event via socket to get updated post to all connected users
+    await ioInstance.emit('likeUnlikeEvent', post);
   } catch (error) {
     console.error('Error in handleLikeAndNotify:', error);
     res.status({ success: false, error: 'Something went wrong!' });
