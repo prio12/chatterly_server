@@ -9,6 +9,7 @@ const {
   handleLikeAndNotify,
   addCommentToAPost,
   editComment,
+  deleteAComment,
 } = require('../controllers/postsController');
 
 const router = express.Router();
@@ -36,4 +37,7 @@ router.patch('/comments/:id', addCommentToAPost);
 
 //update a user's comment to a specific post
 router.patch('/comments/update/:postId', editComment);
+
+//delete a comment of a specific user to a specific post
+router.patch('/comments/delete/:postId/:commentId', deleteAComment);
 module.exports = router;

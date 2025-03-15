@@ -316,6 +316,39 @@ async function editComment(req, res) {
   }
 }
 
+//delete a comment
+async function deleteAComment(req, res) {
+  const { postId, commentId } = req.params;
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post Not Found!',
+      });
+    }
+
+    //removing the specific comment
+    post.comments = post.comments.filter(
+      (comment) => comment._id.toString() !== commentId
+    );
+
+    //saving the post
+    await post.save();
+
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
+}
+
 module.exports = {
   createAPost,
   getAllPosts,
@@ -325,4 +358,5 @@ module.exports = {
   getSpecificPostDetails,
   addCommentToAPost,
   editComment,
+  deleteAComment,
 };
