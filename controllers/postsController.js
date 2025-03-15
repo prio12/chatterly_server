@@ -62,6 +62,9 @@ async function getAllPosts(req, res) {
     const result = await Post.find({})
       .populate('author')
       .populate('likes')
+      .populate({
+        path: 'comments.user',
+      })
       .sort({ createdAt: -1 });
     res.status(200).json({
       result,
