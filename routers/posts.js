@@ -8,6 +8,7 @@ const {
   getSpecificPostDetails,
   handleLikeAndNotify,
   addCommentToAPost,
+  editComment,
 } = require('../controllers/postsController');
 
 const router = express.Router();
@@ -32,4 +33,7 @@ router.patch('/likes/:id', handleLikeAndNotify);
 
 //add comments to a specific user
 router.patch('/comments/:id', addCommentToAPost);
+
+//update a user's comment to a specific post
+router.patch('/comments/update/:postId', editComment);
 module.exports = router;
