@@ -69,6 +69,32 @@ async function handleMarkAsSeen(req, res) {
   }
 }
 
+//handle mark as read
+async function handleMarkAsRead(req, res) {
+  const _id = req.params.id;
+  const update = { read: true };
+
+  try {
+    const notification = await Notification.findById(_id);
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        error: 'Notification not found!',
+      });
+    }
+    const response = await Notification.findByIdAndUpdate(_id, update);
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Error!',
+    });
+  }
+}
+
 async function deleteANotification(req, res) {
   try {
     const response = await Notification.findByIdAndDelete(req.params.id);
@@ -89,4 +115,5 @@ module.exports = {
   getUserSpecificNotifications,
   handleMarkAsSeen,
   deleteANotification,
+  handleMarkAsRead,
 };

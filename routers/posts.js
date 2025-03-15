@@ -7,6 +7,7 @@ const {
   deleteAPost,
   getSpecificPostDetails,
   handleLikeAndNotify,
+  addCommentToAPost,
 } = require('../controllers/postsController');
 
 const router = express.Router();
@@ -29,4 +30,6 @@ router.delete('/:id', deleteAPost);
 //update like of a specific post
 router.patch('/likes/:id', handleLikeAndNotify);
 
+//add comments to a specific user
+router.patch('/comments/:id', addCommentToAPost);
 module.exports = router;

@@ -48,7 +48,7 @@ async function createAPost(req, res) {
     }
 
     //emit the event to broadcast the new post to all connected users
-    ioInstance.emit('newPost', result);
+    await ioInstance.emit('newPost', { success: true });
   } catch (error) {
     res.status(400).json({
       error: error.message,
@@ -232,10 +232,41 @@ async function handleLikeAndNotify(req, res) {
       });
     }
     //emitting an event via socket to get updated post to all connected users
-    await ioInstance.emit('likeUnlikeEvent', post);
+    await ioInstance.emit('likeUnlikeEvent', { success: true });
   } catch (error) {
     console.error('Error in handleLikeAndNotify:', error);
     res.status({ success: false, error: 'Something went wrong!' });
+  }
+}
+
+//add a comment to the specific post
+async function addCommentToAPost(req, res) {
+  //postId
+  const id = req.params.id;
+  //comment
+  const comment = req.body;
+
+  try {
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        error: 'Post Not Found!',
+      });
+    }
+    //adding the comment to the post
+    post.comments.push(comment);
+    //saving the post after adding the comment
+    const updatedPost = await post.save();
+    res.status(200).json({
+      success: true,
+      updatedPost,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
   }
 }
 
@@ -246,4 +277,5 @@ module.exports = {
   deleteAPost,
   handleLikeAndNotify,
   getSpecificPostDetails,
+  addCommentToAPost,
 };
