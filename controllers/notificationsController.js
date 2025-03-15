@@ -22,7 +22,43 @@ async function handleLikedNotification({ post, userId, user, authorUid }) {
   //checking if the author of the post (who will get notification) is online with socketId
   const authorSocketId = users.get(authorUid);
   if (authorSocketId) {
-    io.to(authorSocketId).emit('likedNotification', savedNotification);
+    io.to(authorSocketId).emit('notification', savedNotification);
+  }
+}
+
+async function handleCommentNotification({
+  authorId,
+  post,
+  userId,
+  authorUid,
+}) {
+  if (authorId !== userId) {
+    //getting all registered users (registered with userUid)
+    const users = getUsers();
+
+    //get io instance
+    const io = getIo();
+
+    //creating a new Notification  using notification schema
+    const newNotification = new Notification({
+      type: 'comment',
+      recipient: post.author._id.toString(),
+      sender: userId,
+      post: post._id,
+    });
+
+    try {
+      //save notification
+      const savedNotification = await newNotification.save();
+
+      //checking if the author of the post (who will get notification) is online with socketId
+      const authorSocketId = users.get(authorUid);
+      if (authorSocketId) {
+        io.to(authorSocketId).emit('notification', savedNotification);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
@@ -116,4 +152,5 @@ module.exports = {
   handleMarkAsSeen,
   deleteANotification,
   handleMarkAsRead,
+  handleCommentNotification,
 };

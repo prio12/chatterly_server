@@ -246,7 +246,11 @@ async function addCommentToAPost(req, res) {
   //postId
   const id = req.params.id;
   //comment
-  const comment = req.body;
+  const { user, authorId, text, authorUid } = req.body;
+  const comment = {
+    user,
+    text,
+  };
 
   try {
     const post = await Post.findById(id);
@@ -260,6 +264,11 @@ async function addCommentToAPost(req, res) {
     post.comments.push(comment);
     //saving the post after adding the comment
     const updatedPost = await post.save();
+
+    //sending necessary data to handleCommentNotification function
+    const { handleCommentNotification } = require('./notificationsController');
+    handleCommentNotification({ authorId, post, userId: user, authorUid });
+
     res.status(200).json({
       success: true,
       updatedPost,
