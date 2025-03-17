@@ -1,7 +1,7 @@
 const Notification = require('../models/notificationsModel');
 const { getUsers, getIo } = require('../socketServer');
 
-//like notification controller using socket.io
+//like notification controller
 async function handleLikedNotification({ post, userId, user, authorUid }) {
   //getting all registered users
   const users = getUsers();
@@ -26,6 +26,7 @@ async function handleLikedNotification({ post, userId, user, authorUid }) {
   }
 }
 
+//handling comment notification
 async function handleCommentNotification({
   authorId,
   post,

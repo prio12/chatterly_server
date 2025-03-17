@@ -83,7 +83,10 @@ async function getSpecificPostDetails(req, res) {
   try {
     const response = await Post.findById(postId)
       .populate('author')
-      .populate('likes');
+      .populate('likes')
+      .populate({
+        path: 'comments.user',
+      });
 
     res.status(200).json({
       success: true,
@@ -99,6 +102,10 @@ async function getSpecificPostDetails(req, res) {
 
 //update a specific post
 async function updateAPost(req, res) {
+  if (!ioInstance) {
+    const { getIo } = require('../socketServer'); // Lazy import
+    ioInstance = getIo(); // Reuse the stored instance
+  }
   const _id = req.params.id;
   const updatedDoc = {
     $set: {
@@ -119,6 +126,10 @@ async function updateAPost(req, res) {
     const response = await Post.findByIdAndUpdate(_id, updatedDoc, {
       new: true,
     });
+
+    // Emit event
+    ioInstance.emit('postInteraction', { success: true });
+
     res.status(200).json({
       success: true,
       response,
@@ -133,6 +144,10 @@ async function updateAPost(req, res) {
 
 //delete a specific post
 async function deleteAPost(req, res) {
+  if (!ioInstance) {
+    const { getIo } = require('../socketServer'); // Lazy import
+    ioInstance = getIo(); // Reuse the stored instance
+  }
   const postId = req.params.id;
 
   try {
@@ -153,6 +168,9 @@ async function deleteAPost(req, res) {
     await User.findByIdAndUpdate(authorId, {
       $pull: { posts: postId },
     });
+
+    // Emit event
+    ioInstance.emit('postInteraction', { success: true });
 
     //sending response
     res.status(200).json({
@@ -235,7 +253,7 @@ async function handleLikeAndNotify(req, res) {
       });
     }
     //emitting an event via socket to get updated post to all connected users
-    await ioInstance.emit('likeUnlikeEvent', { success: true });
+    await ioInstance.emit('postInteraction', { success: true });
   } catch (error) {
     res.status({ success: false, error: 'Something went wrong!' });
   }
@@ -243,14 +261,14 @@ async function handleLikeAndNotify(req, res) {
 
 //add a comment to the specific post
 async function addCommentToAPost(req, res) {
-  //postId
+  if (!ioInstance) {
+    const { getIo } = require('../socketServer'); // Lazy import
+    ioInstance = getIo(); // Reuse the stored instance
+  }
   const id = req.params.id;
-  //comment
   const { user, authorId, text, authorUid } = req.body;
-  const comment = {
-    user,
-    text,
-  };
+
+  const comment = { user, text };
 
   try {
     const post = await Post.findById(id);
@@ -260,15 +278,23 @@ async function addCommentToAPost(req, res) {
         error: 'Post Not Found!',
       });
     }
-    //adding the comment to the post
+
     post.comments.push(comment);
-    //saving the post after adding the comment
     const updatedPost = await post.save();
 
-    //sending necessary data to handleCommentNotification function
+    // Ensure handleCommentNotification completes before sending the response
     const { handleCommentNotification } = require('./notificationsController');
-    handleCommentNotification({ authorId, post, userId: user, authorUid });
+    await handleCommentNotification({
+      authorId,
+      post,
+      userId: user,
+      authorUid,
+    });
 
+    // Emit event
+    ioInstance.emit('postInteraction', { success: true });
+
+    // Send response only after everything is done
     res.status(200).json({
       success: true,
       updatedPost,
@@ -276,13 +302,17 @@ async function addCommentToAPost(req, res) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Server Side Error!',
+      error: error,
     });
   }
 }
 
 //update a user's comment to a specific comment
 async function editComment(req, res) {
+  if (!ioInstance) {
+    const { getIo } = require('../socketServer'); // Lazy import
+    ioInstance = getIo(); // Reuse the stored instance
+  }
   const id = req.params.postId;
   const { comment_id, text } = req.body;
 
@@ -313,6 +343,9 @@ async function editComment(req, res) {
     //save the post
     const response = await post.save();
 
+    // Emit event
+    ioInstance.emit('postInteraction', { success: true });
+
     res.status(200).json({
       success: true,
       response,
@@ -327,6 +360,10 @@ async function editComment(req, res) {
 
 //delete a comment
 async function deleteAComment(req, res) {
+  if (!ioInstance) {
+    const { getIo } = require('../socketServer'); // Lazy import
+    ioInstance = getIo(); // Reuse the stored instance
+  }
   const { postId, commentId } = req.params;
 
   try {
@@ -346,6 +383,9 @@ async function deleteAComment(req, res) {
 
     //saving the post
     await post.save();
+
+    // Emit event
+    ioInstance.emit('postInteraction', { success: true });
 
     res.status(200).json({
       success: true,

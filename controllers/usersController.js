@@ -31,6 +31,9 @@ async function getUserByUid(req, res, next) {
         {
           path: 'likes',
         },
+        {
+          path: 'comments.user',
+        },
       ],
     });
 
