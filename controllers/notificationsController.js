@@ -147,6 +147,10 @@ async function deleteANotification(req, res) {
   }
 }
 
+async function handleConnectionRequestNotification() {
+  console.log('hello');
+}
+
 module.exports = {
   handleLikedNotification,
   getUserSpecificNotifications,
@@ -154,4 +158,5 @@ module.exports = {
   deleteANotification,
   handleMarkAsRead,
   handleCommentNotification,
+  handleConnectionRequestNotification,
 };
