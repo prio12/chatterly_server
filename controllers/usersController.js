@@ -99,8 +99,24 @@ async function updateUserInfo(req, res, next) {
   }
 }
 
+//get All users
+async function getAllUsers(req, res, next) {
+  try {
+    const response = await User.find({});
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
+}
 module.exports = {
   addNewUser,
   updateUserInfo,
   getUserByUid,
+  getAllUsers,
 };
