@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
 
-const friendshipSchema = new Schema(
+const connectionSchema = new Schema(
   {
     requester: {
       type: Schema.Types.ObjectId,
@@ -29,5 +29,5 @@ const friendshipSchema = new Schema(
   }
 );
 
-const FriendShip = mongoose.model('FriendShip', friendshipSchema);
-module.exports = FriendShip;
+const Connection = mongoose.model('Connection', connectionSchema);
+module.exports = Connection;
