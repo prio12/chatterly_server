@@ -46,7 +46,22 @@ async function createConnectionRequest(req, res) {
 
 //get connection request of a specific user
 async function getConnectionRequests(req, res) {
-  console.log(req.params.id);
+  const id = req.params.id;
+
+  try {
+    const response = await Connection.find({ recipient: id }).populate(
+      'requester'
+    );
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
 }
 
 module.exports = {
