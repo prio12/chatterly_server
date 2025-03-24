@@ -2,6 +2,7 @@ const Connection = require('../models/connectionsModel');
 const User = require('../models/usersModel');
 const {
   handleConnectionRequestNotification,
+  handleConnectionRequestAcceptNotification,
 } = require('./notificationsController');
 
 //add all connection request in db
@@ -110,6 +111,7 @@ async function getConnectionSuggestions(req, res) {
 //accept connection request (updating the status to accepted)
 async function acceptConnectionRequest(req, res) {
   const id = req.params.id;
+  const { notificationSender, notificationRecipient } = req.body;
 
   try {
     const connectionData = await Connection.findById(id);
@@ -123,6 +125,11 @@ async function acceptConnectionRequest(req, res) {
     //updating pending to accepted
     const response = await Connection.findByIdAndUpdate(id, {
       status: 'accepted',
+    });
+
+    await handleConnectionRequestAcceptNotification({
+      notificationSender,
+      notificationRecipient,
     });
 
     res.status(200).json({

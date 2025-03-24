@@ -57,7 +57,49 @@ async function handleConnectionRequestNotification({
         savedNotification
       );
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+//connection response/accept notification controller
+async function handleConnectionRequestAcceptNotification({
+  notificationSender,
+  notificationRecipient,
+}) {
+  //get all registered users using socketIo id
+  const users = getUsers();
+
+  //get io instance
+  const io = getIo();
+
+  //making new notification
+  const newNotification = new Notification({
+    recipient: notificationRecipient._id.toString(),
+    sender: notificationSender._id.toString(),
+    type: 'connection_accept',
+  });
+
+  try {
+    //saving new notification in db
+    const savedNotification = await newNotification.save();
+
+    //get notificationRecipient socketid
+    const notificationRecipientSocketId = users.get(
+      notificationRecipient.uid.toString()
+    );
+
+    //sending notification
+
+    if (notificationRecipientSocketId) {
+      io.to(notificationRecipientSocketId).emit(
+        'notification',
+        savedNotification
+      );
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 //handling comment notification
@@ -189,4 +231,5 @@ module.exports = {
   handleMarkAsRead,
   handleCommentNotification,
   handleConnectionRequestNotification,
+  handleConnectionRequestAcceptNotification,
 };
