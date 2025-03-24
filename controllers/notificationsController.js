@@ -26,6 +26,40 @@ async function handleLikedNotification({ post, userId, user, authorUid }) {
   }
 }
 
+//connection Request notification controller
+async function handleConnectionRequestNotification({
+  recipientUid,
+  recipient,
+  requester,
+}) {
+  //getting all registered users
+  const users = getUsers();
+
+  //getting io instance
+  const io = getIo();
+
+  //creating a notification using notification Schema
+  const notification = new Notification({
+    type: 'connection_request',
+    recipient: recipient,
+    sender: requester,
+  });
+
+  try {
+    //saving new notification in db
+    const savedNotification = await notification.save();
+
+    //checking if the author of the post (who will get notification) is online with socketId
+    const notificationRecipientSocketId = users.get(recipientUid);
+    if (notificationRecipientSocketId) {
+      io.to(notificationRecipientSocketId).emit(
+        'notification',
+        savedNotification
+      );
+    }
+  } catch (error) {}
+}
+
 //handling comment notification
 async function handleCommentNotification({
   authorId,
@@ -145,10 +179,6 @@ async function deleteANotification(req, res) {
       error: 'Server Error!',
     });
   }
-}
-
-async function handleConnectionRequestNotification() {
-  console.log('hello');
 }
 
 module.exports = {

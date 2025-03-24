@@ -1,4 +1,7 @@
 const Connection = require('../models/connectionsModel');
+const {
+  handleConnectionRequestNotification,
+} = require('./notificationsController');
 
 //add all connection request in db
 async function createConnectionRequest(req, res) {
@@ -6,7 +9,7 @@ async function createConnectionRequest(req, res) {
 
   try {
     //checking if the request already exist
-    const existingRequest = await Connection.find({ requester, recipient });
+    const existingRequest = await Connection.findOne({ requester, recipient });
     if (existingRequest) {
       return res.status(400).json({
         success: false,
@@ -22,6 +25,13 @@ async function createConnectionRequest(req, res) {
 
     //saving new connection request in db
     const response = await newRequest.save();
+    console.log(response);
+
+    await handleConnectionRequestNotification({
+      recipientUid,
+      requester,
+      recipient,
+    });
 
     res.status(200).json({
       success: true,

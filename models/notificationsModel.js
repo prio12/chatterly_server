@@ -4,7 +4,13 @@ const { Schema } = mongoose;
 const notificationsSchema = new Schema({
   type: {
     type: String,
-    enum: ['like', 'comment', 'friend_request', 'friend_accept', 'message'],
+    enum: [
+      'like',
+      'comment',
+      'connection_request',
+      'connection_accept',
+      'message',
+    ],
     required: true,
   },
   recipient: {
