@@ -25,7 +25,6 @@ async function createConnectionRequest(req, res) {
 
     //saving new connection request in db
     const response = await newRequest.save();
-    console.log(response);
 
     await handleConnectionRequestNotification({
       recipientUid,
@@ -45,6 +44,12 @@ async function createConnectionRequest(req, res) {
   }
 }
 
+//get connection request of a specific user
+async function getConnectionRequests(req, res) {
+  console.log(req.params.id);
+}
+
 module.exports = {
   createConnectionRequest,
+  getConnectionRequests,
 };
