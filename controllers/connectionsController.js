@@ -50,9 +50,9 @@ async function getConnectionRequests(req, res) {
   const id = req.params.id;
 
   try {
-    const response = await Connection.find({ recipient: id }).populate(
-      'requester'
-    );
+    const response = await Connection.find({ recipient: id, status: 'pending' })
+      .populate('requester')
+      .sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       response,
@@ -85,8 +85,14 @@ async function getConnectionSuggestions(req, res) {
     ]);
 
     //filtering suggestedConnections
-    const suggestedConnections = allUsers.filter(
+    const filteredUsers = allUsers.filter(
       (user) => !connectedUsersIds.includes(user._id.toString())
+    );
+
+    //removing the currentlyLoggedInUser from filteredUsers (not to render thyself in connectionSuggestions)
+
+    const suggestedConnections = filteredUsers.filter(
+      (user) => user?._id.toString() !== id
     );
 
     res.status(200).json({
@@ -101,8 +107,39 @@ async function getConnectionSuggestions(req, res) {
   }
 }
 
+//accept connection request (updating the status to accepted)
+async function acceptConnectionRequest(req, res) {
+  const id = req.params.id;
+
+  try {
+    const connectionData = await Connection.findById(id);
+    if (!connectionData) {
+      return res.status(400).json({
+        success: false,
+        error: 'Something went wrong!',
+      });
+    }
+
+    //updating pending to accepted
+    const response = await Connection.findByIdAndUpdate(id, {
+      status: 'accepted',
+    });
+
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
+}
+
 module.exports = {
   createConnectionRequest,
   getConnectionRequests,
   getConnectionSuggestions,
+  acceptConnectionRequest,
 };
