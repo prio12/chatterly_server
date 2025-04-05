@@ -147,7 +147,18 @@ async function acceptConnectionRequest(req, res) {
 //ignore a connection request or decline/delete a connection request
 async function ignoreAConnectionRequest(req, res) {
   const id = req.params.id;
-  console.log(id);
+  try {
+    const response = await Connection.findByIdAndDelete(id);
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
 }
 
 module.exports = {
