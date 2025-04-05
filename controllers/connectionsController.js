@@ -165,16 +165,23 @@ async function ignoreAConnectionRequest(req, res) {
 async function getMyConnections(req, res) {
   const id = req.params.id;
   try {
-    const response = await Connection.find({
+    const connections = await Connection.find({
       status: 'accepted',
       $or: [{ requester: id }, { recipient: id }],
     })
       .populate('requester')
       .populate('recipient');
 
+    //here just sending the friends/connections profile rather sending both requester and recipient(cause no point to send the currentlyLogged in user in response)
+    const myConnections = connections.map((connection) => {
+      //getting the requester _id
+      const requesterId = connection.requester._id.toString();
+      return requesterId === id ? connection.recipient : connection.requester;
+    });
+
     res.status(200).json({
       success: true,
-      response,
+      myConnections,
     });
   } catch (error) {
     res.status(500).json({
