@@ -144,9 +144,16 @@ async function acceptConnectionRequest(req, res) {
   }
 }
 
+//ignore a connection request or decline/delete a connection request
+async function ignoreAConnectionRequest(req, res) {
+  const id = req.params.id;
+  console.log(id);
+}
+
 module.exports = {
   createConnectionRequest,
   getConnectionRequests,
   getConnectionSuggestions,
   acceptConnectionRequest,
+  ignoreAConnectionRequest,
 };
