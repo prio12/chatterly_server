@@ -164,7 +164,24 @@ async function ignoreAConnectionRequest(req, res) {
 //get all connections (friends) of a specific user
 async function getMyConnections(req, res) {
   const id = req.params.id;
-  console.log(id);
+  try {
+    const response = await Connection.find({
+      status: 'accepted',
+      $or: [{ requester: id }, { recipient: id }],
+    })
+      .populate('requester')
+      .populate('recipient');
+
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
 }
 
 module.exports = {
