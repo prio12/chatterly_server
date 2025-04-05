@@ -6,6 +6,7 @@ const {
   getConnectionSuggestions,
   acceptConnectionRequest,
   ignoreAConnectionRequest,
+  getMyConnections,
 } = require('../controllers/connectionsController');
 
 //creating connections route
@@ -25,5 +26,8 @@ router.get('/suggestions/:id', getConnectionSuggestions);
 
 //ignore a connection request/remove a connection request
 router.delete('/:id', ignoreAConnectionRequest);
+
+//fetch all connections (friends) of a specific user
+router.get('/myConnections/:id', getMyConnections);
 
 module.exports = router;

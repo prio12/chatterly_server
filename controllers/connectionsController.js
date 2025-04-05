@@ -161,10 +161,17 @@ async function ignoreAConnectionRequest(req, res) {
   }
 }
 
+//get all connections (friends) of a specific user
+async function getMyConnections(req, res) {
+  const id = req.params.id;
+  console.log(id);
+}
+
 module.exports = {
   createConnectionRequest,
   getConnectionRequests,
   getConnectionSuggestions,
   acceptConnectionRequest,
   ignoreAConnectionRequest,
+  getMyConnections,
 };
