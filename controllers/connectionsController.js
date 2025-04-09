@@ -201,7 +201,9 @@ async function getMyConnections(req, res) {
 async function getAllSentRequests(req, res) {
   const id = req.params.id;
   try {
-    const response = await Connection.find({ requester: id });
+    const response = await Connection.find({ requester: id }).populate(
+      'recipient'
+    );
     res.status(200).json({
       success: true,
       response,
