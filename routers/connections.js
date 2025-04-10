@@ -8,6 +8,7 @@ const {
   ignoreAConnectionRequest,
   getMyConnections,
   getAllSentRequests,
+  checkConnectionStatus,
 } = require('../controllers/connectionsController');
 
 //creating connections route
@@ -33,5 +34,8 @@ router.get('/myConnections/:id', getMyConnections);
 
 //fetch all sent connectionsRequest of a individual user
 router.get('/sentRequests/:id', getAllSentRequests);
+
+//check connection status (accepted,pending) between two users
+router.get('/status/:userId/:targetId', checkConnectionStatus);
 
 module.exports = router;

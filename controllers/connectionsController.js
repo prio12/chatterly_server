@@ -216,6 +216,50 @@ async function getAllSentRequests(req, res) {
   }
 }
 
+//check connection status between two users eg:(accepted, pending)
+async function checkConnectionStatus(req, res) {
+  const currentlyLoggedInUserId = req.params.userId;
+  const targetedUserId = req.params.targetId;
+
+  try {
+    const connection = await Connection.findOne({
+      $or: [
+        { requester: currentlyLoggedInUserId, recipient: targetedUserId },
+        { requester: targetedUserId, recipient: currentlyLoggedInUserId },
+      ],
+    });
+
+    if (!connection) {
+      return res.status(200).json({
+        connection: false,
+        status: 'none',
+      });
+    }
+
+    const isRequester =
+      currentlyLoggedInUserId === connection.requester.toString();
+
+    //defining the default action (if the status is accepted)
+    let action = 'disconnect';
+
+    //checking if the connection status is pending
+    if (connection.status === 'pending') {
+      action = isRequester ? 'cancel' : 'accept';
+    }
+
+    res.status(200).json({
+      connection: true,
+      status: connection.status,
+      action,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
+}
+
 module.exports = {
   createConnectionRequest,
   getConnectionRequests,
@@ -224,4 +268,5 @@ module.exports = {
   ignoreAConnectionRequest,
   getMyConnections,
   getAllSentRequests,
+  checkConnectionStatus,
 };
