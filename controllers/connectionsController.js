@@ -249,6 +249,7 @@ async function checkConnectionStatus(req, res) {
 
     res.status(200).json({
       connection: true,
+      connectionId: connection._id,
       status: connection.status,
       action,
     });

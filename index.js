@@ -19,6 +19,7 @@ const usersRoute = require('./routers/users');
 const postsRoute = require('./routers/posts');
 const notificationsRoute = require('./routers/notifications');
 const connectionRoute = require('./routers/connections');
+const jwtRoute = require('./routers/jwtRoute');
 const { initializeSocket } = require('./socketServer');
 
 //initializeSocket
@@ -39,6 +40,7 @@ app.use('/', usersRoute);
 app.use('/posts', postsRoute);
 app.use('/notifications', notificationsRoute);
 app.use('/connections', connectionRoute);
+app.use('/jwt', jwtRoute); //jwt route
 
 httpServer.listen(process.env.PORT, () => {
   console.log(`server is running on port ${process.env.PORT}`);
