@@ -6,21 +6,22 @@ const {
   getUserByUid,
   getAllUsers,
 } = require('../controllers/usersController');
+const verifyJwtToken = require('../middlewares/verifyJwtToken');
 
 //internal imports
 
 const router = express.Router();
 
 //add a new user to db after signing up for the first time
-router.post('/users', addNewUser);
+router.post('/users', verifyJwtToken, addNewUser);
 
 //get all users
-router.get('/users', getAllUsers);
+router.get('/users', verifyJwtToken, getAllUsers);
 
 //get method to get a userSpecific info by uid
-router.get('/users/:uid', getUserByUid);
+router.get('/users/:uid', verifyJwtToken, getUserByUid);
 
 //update any field of a specific user eg:(profile pic, cover photo, bio)
-router.patch('/users/:uid', updateUserInfo);
+router.patch('/users/:uid', verifyJwtToken, updateUserInfo);
 
 module.exports = router;

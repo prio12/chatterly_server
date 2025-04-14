@@ -6,16 +6,17 @@ const {
   deleteANotification,
   handleMarkAsRead,
 } = require('../controllers/notificationsController');
+const verifyJwtToken = require('../middlewares/verifyJwtToken');
 
 //creating notification route
 const router = express.Router();
 
-router.get('/:id', getUserSpecificNotifications);
+router.get('/:id', verifyJwtToken, getUserSpecificNotifications);
 
-router.patch('/:id', handleMarkAsSeen);
+router.patch('/:id', verifyJwtToken, handleMarkAsSeen);
 
-router.patch('/:id/mark-as-read', handleMarkAsRead);
+router.patch('/:id/mark-as-read', verifyJwtToken, handleMarkAsRead);
 
-router.delete('/:id', deleteANotification);
+router.delete('/:id', verifyJwtToken, deleteANotification);
 
 module.exports = router;

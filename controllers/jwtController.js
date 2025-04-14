@@ -14,7 +14,11 @@ async function issueJwtToken(req, res) {
 
   //generating jwt token
   const token = generateToken(userUid);
-  console.log(token);
+
+  res.status(200).json({
+    success: true,
+    token,
+  });
 }
 
 module.exports = {
