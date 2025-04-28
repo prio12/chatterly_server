@@ -1,17 +1,36 @@
 const Connection = require('../models/connectionsModel');
 const Story = require('../models/storiesModel');
+const StoryBucket = require('../models/storyBucketModel');
 
 //create a new story of a specific user
 async function addANewStory(req, res) {
-  //creating new story using Story Model
-  const newStory = new Story(req.body);
+  const { author, mediaUrl } = req.body;
 
-  // saving in db
   try {
-    const response = await newStory.save();
+    const newStory = new Story({ author, mediaUrl });
+
+    //save the story
+    const savedStory = await newStory.save();
+
+    // find the storyBucket of a specific User
+    let userStoryBucket = await StoryBucket.findOne({ author: author });
+
+    if (!userStoryBucket) {
+      userStoryBucket = new StoryBucket({
+        author: author,
+        stories: [savedStory._id],
+      });
+    } else {
+      userStoryBucket.stories.push(savedStory._id);
+    }
+
+    //save the usersStoryBucket after updating/creating for the first time
+    await userStoryBucket.save();
+
+    //response
     res.status(200).json({
       success: true,
-      response,
+      story: savedStory,
     });
   } catch (error) {
     res.status(500).json({
@@ -45,11 +64,11 @@ async function getStories(req, res) {
     const storiesAuthor = [...myConnections, id];
 
     //find stories
-    const stories = await Story.find({ author: storiesAuthor }).populate(
-      'author'
-    );
+    const storyBuckets = await StoryBucket.find({
+      author: { $in: storiesAuthor },
+    }).populate('author');
 
-    const activeStories = stories.filter((story) => {
+    const activeStories = storyBuckets.filter((story) => {
       const createdAt = story.createdAt;
       const now = new Date();
       const timeDifferences = now - createdAt;
@@ -57,7 +76,7 @@ async function getStories(req, res) {
       return timeDifferences <= 24 * 60 * 60 * 1000;
     });
 
-    //send response
+    // send response
     res.status(200).json({
       success: true,
       activeStories,

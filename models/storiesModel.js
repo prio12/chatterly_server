@@ -1,8 +1,7 @@
-//external imports
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const storiesSchema = new Schema(
+const storySchema = new Schema(
   {
     author: {
       type: Schema.Types.ObjectId,
@@ -19,5 +18,5 @@ const storiesSchema = new Schema(
   }
 );
 
-const Story = mongoose.model('Story', storiesSchema);
+const Story = mongoose.model('Story', storySchema);
 module.exports = Story;
