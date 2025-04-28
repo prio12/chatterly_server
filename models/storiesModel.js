@@ -13,18 +13,9 @@ const storiesSchema = new Schema(
       type: String,
       default: '',
     },
-    caption: {
-      type: String,
-      default: '',
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      expires: 86400, // TTL: 60 seconds (for testing)
-    },
   },
   {
-    timestamps: false,
+    timestamps: true,
   }
 );
 

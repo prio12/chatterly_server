@@ -43,6 +43,7 @@ async function createAPost(req, res) {
 
     if (result) {
       res.status(200).json({
+        success: true,
         result,
       });
     }
