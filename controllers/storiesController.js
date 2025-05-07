@@ -70,13 +70,13 @@ async function getStories(req, res) {
       .populate('stories');
 
     const now = new Date();
-    const oneDay = 24 * 60 * 60 * 1000;
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
 
     // Filter out old stories (older than 24 hours)
     const activeStories = storyBuckets
       .map((bucket) => {
         const validStories = bucket.stories.filter((story) => {
-          return now - new Date(story.createdAt) <= oneDay;
+          return now - new Date(story.createdAt) <= sevenDays;
         });
 
         return validStories.length > 0
