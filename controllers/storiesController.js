@@ -86,9 +86,8 @@ async function getStories(req, res) {
             }
           : null;
       })
-      .filter(Boolean); // remove null entries
+      .filter(Boolean);
 
-    // Step 6: Send response
     res.status(200).json({
       success: true,
       activeStories,

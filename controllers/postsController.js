@@ -190,8 +190,6 @@ async function handleLikeAndNotify(req, res) {
   if (!ioInstance) {
     const { getIo } = require('../socketServer'); // Lazy import
     ioInstance = getIo(); // Reuse the stored instance
-
-    console.log('ioInstance', ioInstance);
   }
   const postId = req.params.id;
   const { userId, action, authorUid } = req.body;
