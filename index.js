@@ -20,6 +20,7 @@ const postsRoute = require('./routers/posts');
 const notificationsRoute = require('./routers/notifications');
 const connectionRoute = require('./routers/connections');
 const storiesRoute = require('./routers/stories');
+const conversationRoute = require('./routers/conversations');
 const jwtRoute = require('./routers/jwtRoute');
 const { initializeSocket } = require('./socketServer');
 
@@ -42,6 +43,7 @@ app.use('/posts', postsRoute);
 app.use('/notifications', notificationsRoute);
 app.use('/connections', connectionRoute);
 app.use('/stories', storiesRoute);
+app.use('/conversations', conversationRoute);
 app.use('/jwt', jwtRoute); //jwt route
 
 httpServer.listen(process.env.PORT, () => {
