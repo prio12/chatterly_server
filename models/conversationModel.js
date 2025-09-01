@@ -7,6 +7,7 @@ const conversationSchema = new Schema(
     lastMessage: {
       type: Schema.Types.ObjectId,
       ref: 'Message',
+      default: null,
     },
   },
 
