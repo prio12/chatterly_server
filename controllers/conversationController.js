@@ -38,4 +38,20 @@ async function createConversation(req, res) {
     });
   }
 }
-module.exports = { createConversation };
+
+async function getUserConversations(req, res) {
+  const _id = req.params.id;
+  try {
+    const conversations = await Conversation.find({ participants: _id });
+    res.status(200).json({
+      success: true,
+      conversations,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
+}
+module.exports = { createConversation, getUserConversations };
