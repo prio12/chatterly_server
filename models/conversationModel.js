@@ -9,6 +9,11 @@ const conversationSchema = new Schema(
       ref: 'Message',
       default: null,
     },
+    unreadCounts: {
+      type: Map,
+      of: Number,
+      default: {},
+    },
   },
 
   { timestamps: true }
