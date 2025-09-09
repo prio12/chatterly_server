@@ -10,6 +10,7 @@ async function createConversation(req, res) {
   const io = getIo();
 
   const { participants, sender, text, senderUid, receiverUid } = req.body;
+
   if (!(participants && participants.length > 1) || !sender || !text) {
     return res.status(400).json({
       error: 'Minimum two participants, sender and text required',
@@ -38,7 +39,7 @@ async function createConversation(req, res) {
     //making new message
     const newMessage = new Message({
       conversation: conversation?._id,
-      sender: '680fc98389d43fd618647bc6',
+      sender,
       text,
     });
     await newMessage.save();
@@ -58,7 +59,12 @@ async function createConversation(req, res) {
 
     // re-fetch with populated lastMessage
     const populatedConversation = await Conversation.findById(conversation._id)
-      .populate('lastMessage')
+      .populate({
+        path: 'lastMessage',
+        populate: {
+          path: 'sender',
+        },
+      })
       .populate('participants');
 
     //sending socket event to update chatList
@@ -97,8 +103,13 @@ async function getUserConversations(req, res) {
       .sort({
         updatedAt: -1,
       })
-      .populate('lastMessage')
-      .populate('participants');
+      .populate('participants')
+      .populate({
+        path: 'lastMessage',
+        populate: {
+          path: 'sender',
+        },
+      });
 
     res.status(200).json({
       success: true,
@@ -114,8 +125,10 @@ async function getUserConversations(req, res) {
 
 //mark a conversation as read
 async function markConversationAsRead(req, res) {
+  const conversationId = req.params.id;
+  const userId = req.body.userId;
   try {
-    let conversationExist = await Conversation.findById(req.params.id);
+    let conversationExist = await Conversation.findById(conversationId);
 
     if (!conversationExist) {
       res.status(400).json({
@@ -124,15 +137,40 @@ async function markConversationAsRead(req, res) {
       });
     }
 
-    //change the unread counts of the user
-    conversationExist.unreadCounts.set(req.body.userId, 0);
+    //reset the unread counts of the user when he opens a conversation in the front end
+    conversationExist.unreadCounts.set(userId, 0);
     await conversationExist.save();
 
-    console.log(conversationExist, 'after reset');
-  } catch (error) {}
-  res.status(200).json({
-    success: true,
-  });
+    // mark all messages as seen for this user
+    await Message.updateMany(
+      {
+        conversation: conversationId,
+        seenBy: { $ne: userId },
+      },
+      { $addToSet: { seenBy: userId } }
+    );
+
+    //updated conversation
+    const updatedConversation = await Conversation.findById(conversationId)
+      .populate('lastMessage')
+      .populate('participants')
+      .populate({
+        path: 'lastMessage',
+        populate: {
+          path: 'sender',
+        },
+      });
+
+    res.status(200).json({
+      success: true,
+      updatedConversation,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
 }
 module.exports = {
   createConversation,
