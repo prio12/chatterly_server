@@ -89,9 +89,9 @@ async function createConversation(req, res) {
   }
 }
 
+//get user Conversations
 async function getUserConversations(req, res) {
   const _id = req.params.id;
-  console.log(_id, '_id');
   try {
     const conversations = await Conversation.find({ participants: _id })
       .sort({
@@ -100,7 +100,6 @@ async function getUserConversations(req, res) {
       .populate('lastMessage')
       .populate('participants');
 
-    console.log(conversations, 'conversation');
     res.status(200).json({
       success: true,
       conversations,
@@ -112,4 +111,31 @@ async function getUserConversations(req, res) {
     });
   }
 }
-module.exports = { createConversation, getUserConversations };
+
+//mark a conversation as read
+async function markConversationAsRead(req, res) {
+  try {
+    let conversationExist = await Conversation.findById(req.params.id);
+
+    if (!conversationExist) {
+      res.status(400).json({
+        success: false,
+        error: 'Conversation not found!',
+      });
+    }
+
+    //change the unread counts of the user
+    conversationExist.unreadCounts.set(req.body.userId, 0);
+    await conversationExist.save();
+
+    console.log(conversationExist, 'after reset');
+  } catch (error) {}
+  res.status(200).json({
+    success: true,
+  });
+}
+module.exports = {
+  createConversation,
+  getUserConversations,
+  markConversationAsRead,
+};
