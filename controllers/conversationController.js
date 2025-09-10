@@ -125,18 +125,29 @@ async function getUserConversations(req, res) {
 
 //get all messages of a specific conversation
 async function getMessages(req, res) {
-  const conversationId = req.params.id;
+  const { user1, user2 } = req.query;
 
-  if (!conversationId) {
+  if (!user1 || !user2) {
     return res.status(400).json({
       success: false,
-      error: 'Conversation Id is missing!',
+      error: 'Both user IDs are required',
     });
   }
+
   try {
-    const messages = await Message.find({
-      conversation: conversationId,
-    })
+    const conversation = await Conversation.findOne({
+      participants: { $all: [user1, user2] },
+    });
+
+    if (!conversation) {
+      return res.status(200).json({
+        success: true,
+        messages: [],
+        message: 'No conversation exists between these users yet',
+      });
+    }
+
+    const messages = await Message.find({ conversation: conversation._id })
       .populate({ path: 'sender', select: '_id' })
       .populate({ path: 'seenBy', select: '_id' });
 

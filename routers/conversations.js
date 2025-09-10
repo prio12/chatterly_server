@@ -19,7 +19,7 @@ router.post('/', createConversation);
 router.get('/:id', getUserConversations);
 
 //get all messages of a specific conversation
-router.get('/:id/messages', getMessages);
+router.get('/messages/between', getMessages);
 
 //mark a conversation as read
 router.patch('/:id/read', markConversationAsRead);
