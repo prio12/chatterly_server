@@ -123,6 +123,35 @@ async function getUserConversations(req, res) {
   }
 }
 
+//get all messages of a specific conversation
+async function getMessages(req, res) {
+  const conversationId = req.params.id;
+
+  if (!conversationId) {
+    return res.status(400).json({
+      success: false,
+      error: 'Conversation Id is missing!',
+    });
+  }
+  try {
+    const messages = await Message.find({
+      conversation: conversationId,
+    })
+      .populate({ path: 'sender', select: '_id' })
+      .populate({ path: 'seenBy', select: '_id' });
+
+    res.status(200).json({
+      success: true,
+      messages,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
+}
+
 //mark a conversation as read
 async function markConversationAsRead(req, res) {
   const conversationId = req.params.id;
@@ -176,4 +205,5 @@ module.exports = {
   createConversation,
   getUserConversations,
   markConversationAsRead,
+  getMessages,
 };

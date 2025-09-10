@@ -6,6 +6,7 @@ const {
   createConversation,
   getUserConversations,
   markConversationAsRead,
+  getMessages,
 } = require('../controllers/conversationController');
 
 //creating conversation route
@@ -16,6 +17,9 @@ router.post('/', createConversation);
 
 //get all conversations of a specific user
 router.get('/:id', getUserConversations);
+
+//get all messages of a specific conversation
+router.get('/:id/messages', getMessages);
 
 //mark a conversation as read
 router.patch('/:id/read', markConversationAsRead);
