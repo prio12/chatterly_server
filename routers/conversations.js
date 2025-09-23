@@ -7,6 +7,8 @@ const {
   getUserConversations,
   markConversationAsRead,
   getMessages,
+  initiateEmptyConversation,
+  deleteMessages,
 } = require('../controllers/conversationController');
 
 //creating conversation route
@@ -20,6 +22,9 @@ router.get('/:id', getUserConversations);
 
 //get all messages of a specific conversation
 router.get('/messages/between', getMessages);
+
+//initiate an empty conversation
+router.post('/initiate/conversation', initiateEmptyConversation);
 
 //mark a conversation as read
 router.patch('/:id/read', markConversationAsRead);

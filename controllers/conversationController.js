@@ -43,7 +43,18 @@ async function createConversation(req, res) {
       text,
     });
     await newMessage.save();
-    conversation.lastMessage = newMessage._id;
+
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate({ path: 'sender', select: '_id uid profilePicture name' })
+      .populate({ path: 'seenBy', select: '_id' });
+
+    //emitting the socket event
+    if (populatedMessage && io) {
+      const conversationId = conversation._id.toString();
+      io.to(conversationId).emit('newMessage', populatedMessage);
+    }
+
+    conversation.lastMessage = populatedMessage._id;
 
     //update unreadCounts for this message
     participants.forEach((_id) => {
@@ -111,9 +122,13 @@ async function getUserConversations(req, res) {
         },
       });
 
+    const filteredConversations = conversations.filter(
+      (conversation) => conversation.lastMessage !== null
+    );
+
     res.status(200).json({
       success: true,
-      conversations,
+      conversations: filteredConversations,
     });
   } catch (error) {
     res.status(500).json({
@@ -135,11 +150,21 @@ async function getMessages(req, res) {
   }
 
   try {
-    const conversation = await Conversation.findOne({
+    let conversation = await Conversation.findOne({
       participants: { $all: [user1, user2] },
     });
 
     if (!conversation) {
+      const participants = [user1, user2];
+      const unreadCounts = new Map();
+      participants.forEach((_id) => unreadCounts.set(_id, 0));
+
+      conversation = new Conversation({
+        participants,
+        unreadCounts,
+      });
+      await conversation.save();
+
       return res.status(200).json({
         success: true,
         messages: [],
@@ -148,14 +173,17 @@ async function getMessages(req, res) {
     }
 
     const messages = await Message.find({ conversation: conversation._id })
-      .populate({ path: 'sender', select: '_id' })
-      .populate({ path: 'seenBy', select: '_id' });
+      .populate({ path: 'sender', select: '_id uid profilePicture name' })
+      .populate({ path: 'seenBy', select: '_id uid profilePicture' });
+
+    console.log(messages);
 
     res.status(200).json({
       success: true,
       messages,
     });
   } catch (error) {
+    console.log(error, 'indicate');
     res.status(500).json({
       success: false,
       error: 'Server Side Error!',
@@ -171,7 +199,7 @@ async function markConversationAsRead(req, res) {
     let conversationExist = await Conversation.findById(conversationId);
 
     if (!conversationExist) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         error: 'Conversation not found!',
       });
@@ -212,9 +240,46 @@ async function markConversationAsRead(req, res) {
     });
   }
 }
+
+//initiate an empty conversation
+async function initiateEmptyConversation(req, res) {
+  // const { participants } = req.body.participants;
+  // if (!participants || participants.length < 2) {
+  //   return res.status(400).json({
+  //     success: false,
+  //     error: 'Two participants required!',
+  //   });
+  // }
+  // try {
+  //   //looking for the conversation id of two certain participants
+  //   let conversation = await Conversation.findOne({
+  //     participants: { $all: participants },
+  //   });
+  //   if (!conversation) {
+  //     const unreadCounts = new Map();
+  //     participants.forEach((_id) => unreadCounts.set(_id, 0));
+  //     conversation = new Conversation({
+  //       participants,
+  //       unreadCounts,
+  //     });
+  //     await conversation.save();
+  //   }
+  //   res.status(200).json({
+  //     success: true,
+  //     conversation,
+  //   });
+  // } catch (error) {
+  //   res.status(500).json({
+  //     success: false,
+  //     error: 'Server Side Error!',
+  //   });
+  // }
+}
+
 module.exports = {
   createConversation,
   getUserConversations,
   markConversationAsRead,
   getMessages,
+  initiateEmptyConversation,
 };

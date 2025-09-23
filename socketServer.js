@@ -44,6 +44,11 @@ const initializeSocket = (httpServer) => {
       const activeConnectionsUid = friendsUid.filter((uid) => users.has(uid));
       callback(activeConnectionsUid);
     });
+
+    //listening to the joinConversation event to create a room for conversation
+    socket.on('joinRoom', (conversationId) => {
+      socket.join(conversationId);
+    });
   });
 };
 
