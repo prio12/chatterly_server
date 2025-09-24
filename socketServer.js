@@ -46,7 +46,7 @@ const initializeSocket = (httpServer) => {
     });
 
     //listening to the joinConversation event to create a room for conversation
-    socket.on('joinRoom', (conversationId) => {
+    socket.on('joinedRoom', (conversationId) => {
       socket.join(conversationId);
     });
   });

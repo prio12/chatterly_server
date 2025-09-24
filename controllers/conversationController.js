@@ -168,7 +168,7 @@ async function getMessages(req, res) {
       return res.status(200).json({
         success: true,
         messages: [],
-        message: 'No conversation exists between these users yet',
+        conversationId: conversation._id,
       });
     }
 
@@ -176,14 +176,12 @@ async function getMessages(req, res) {
       .populate({ path: 'sender', select: '_id uid profilePicture name' })
       .populate({ path: 'seenBy', select: '_id uid profilePicture' });
 
-    console.log(messages);
-
     res.status(200).json({
       success: true,
       messages,
+      conversationId: conversation._id,
     });
   } catch (error) {
-    console.log(error, 'indicate');
     res.status(500).json({
       success: false,
       error: 'Server Side Error!',
@@ -241,45 +239,9 @@ async function markConversationAsRead(req, res) {
   }
 }
 
-//initiate an empty conversation
-async function initiateEmptyConversation(req, res) {
-  // const { participants } = req.body.participants;
-  // if (!participants || participants.length < 2) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     error: 'Two participants required!',
-  //   });
-  // }
-  // try {
-  //   //looking for the conversation id of two certain participants
-  //   let conversation = await Conversation.findOne({
-  //     participants: { $all: participants },
-  //   });
-  //   if (!conversation) {
-  //     const unreadCounts = new Map();
-  //     participants.forEach((_id) => unreadCounts.set(_id, 0));
-  //     conversation = new Conversation({
-  //       participants,
-  //       unreadCounts,
-  //     });
-  //     await conversation.save();
-  //   }
-  //   res.status(200).json({
-  //     success: true,
-  //     conversation,
-  //   });
-  // } catch (error) {
-  //   res.status(500).json({
-  //     success: false,
-  //     error: 'Server Side Error!',
-  //   });
-  // }
-}
-
 module.exports = {
   createConversation,
   getUserConversations,
   markConversationAsRead,
   getMessages,
-  initiateEmptyConversation,
 };
