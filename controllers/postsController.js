@@ -59,6 +59,9 @@ async function createAPost(req, res) {
 
 //get all posts
 async function getAllPosts(req, res) {
+  const { page = 1, limit = 5 } = req.query;
+  const skip = (page - 1) * limit;
+
   try {
     const result = await Post.find({})
       .populate('author')
@@ -66,9 +69,16 @@ async function getAllPosts(req, res) {
       .populate({
         path: 'comments.user',
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit));
+
+    const total = await Post.countDocuments({});
+    const hasMore = page * limit < total;
+
     res.status(200).json({
       result,
+      hasMore,
     });
   } catch (error) {
     res.status(500).json({
