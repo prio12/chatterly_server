@@ -1,5 +1,6 @@
 const Conversation = require('../models/ConversationModel');
 const Message = require('../models/messageModel');
+const User = require('../models/usersModel');
 const { getUsers, getIo } = require('../socketServer');
 
 //create a new conversation
@@ -10,6 +11,8 @@ async function createConversation(req, res) {
   const io = getIo();
 
   const { participants, sender, text, senderUid, receiverUid } = req.body;
+
+  const receiverId = participants.find((_id) => _id !== sender);
 
   if (!(participants && participants.length > 1) || !sender || !text) {
     return res.status(400).json({
@@ -44,13 +47,29 @@ async function createConversation(req, res) {
     });
     await newMessage.save();
 
-    const populatedMessage = await Message.findById(newMessage._id)
+    let populatedMessage = await Message.findById(newMessage._id)
       .populate({ path: 'sender', select: '_id uid profilePicture name' })
       .populate({ path: 'seenBy', select: '_id' });
 
     //emitting the socket event
-    if (populatedMessage && io) {
+    if (populatedMessage && io && receiverId) {
       const conversationId = conversation._id.toString();
+      const clientsInRoom = io.sockets.adapter.rooms.get(conversationId); //here get the socketId of the users who are in this room
+      const receiverSocketId = users.get(receiverUid);
+      const receiverIsInRoom =
+        clientsInRoom &&
+        receiverSocketId &&
+        clientsInRoom.has(receiverSocketId);
+      if (receiverIsInRoom) {
+        const receiver = await User.findById(receiverId);
+        if (receiver) {
+          populatedMessage.seenBy.push(receiver);
+          //update the message seen status in db
+          await Message.findByIdAndUpdate(populatedMessage._id, {
+            $addToSet: { seenBy: receiver._id },
+          });
+        }
+      }
       io.to(conversationId).emit('newMessage', populatedMessage);
     }
 
