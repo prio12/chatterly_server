@@ -49,6 +49,10 @@ const initializeSocket = (httpServer) => {
     socket.on('joinedRoom', (conversationId) => {
       socket.join(conversationId);
     });
+
+    socket.on('leaveRoom', (conversationId) => {
+      socket.leave(conversationId);
+    });
   });
 };
 
