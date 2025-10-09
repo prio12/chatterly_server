@@ -1,6 +1,8 @@
 // external imports
 const { Server } = require('socket.io');
 const { handleLikeAndNotify } = require('./controllers/postsController');
+const Conversation = require('./models/ConversationModel');
+const Message = require('./models/messageModel');
 
 //storing io instance to get access from other files
 let io;
@@ -52,6 +54,30 @@ const initializeSocket = (httpServer) => {
 
     socket.on('leaveRoom', (conversationId) => {
       socket.leave(conversationId);
+    });
+
+    socket.on('messagesRead', async ({ conversationId, userId }) => {
+      try {
+        await Message.updateMany(
+          {
+            conversation: conversationId,
+            seenBy: { $ne: userId },
+          },
+          { $addToSet: { seenBy: userId } }
+        );
+
+        let conversation = await Conversation.findById(conversationId);
+        conversation.unreadCounts.set(userId, 0);
+        await conversation.save();
+
+        // Notify all other users in that chat in real-time
+        io.to(conversationId).emit('messagesReadUpdate', {
+          conversationId,
+          userId,
+        });
+      } catch (error) {
+        console.log(error, 'getting this error!');
+      }
     });
   });
 };
