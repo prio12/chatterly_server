@@ -3,6 +3,7 @@ const { Server } = require('socket.io');
 const { handleLikeAndNotify } = require('./controllers/postsController');
 const Conversation = require('./models/ConversationModel');
 const Message = require('./models/messageModel');
+const { handleUserOnline } = require('./controllers/socketEventsController');
 
 //storing io instance to get access from other files
 let io;
@@ -20,10 +21,12 @@ const initializeSocket = (httpServer) => {
   io.on('connection', (socket) => {
     // Register user when they connect using user specific firebase uid
     let registeredUser = null; //to keep track of the registered user , it will help to remove a specific user from users map
-    socket.on('register', (currentUser) => {
+    socket.on('register', async (currentUser) => {
       users.set(currentUser, socket.id);
       registeredUser = currentUser;
 
+      // Handle "delivered" update when user comes online
+      await handleUserOnline(currentUser, io);
       //notify all users about active user's update
       io.emit('usersUpdated');
     });

@@ -12,6 +12,9 @@ async function createConversation(req, res) {
 
   const { participants, sender, text, senderUid, receiverUid } = req.body;
 
+  const senderSocketId = users.get(senderUid);
+  const receiverSocketId = users.get(receiverUid);
+
   const receiverId = participants.find((_id) => _id !== sender);
 
   if (!(participants && participants.length > 1) || !sender || !text) {
@@ -39,11 +42,14 @@ async function createConversation(req, res) {
       });
       await conversation.save();
     }
+
+    let messageStatus = receiverSocketId ? 'delivered' : 'sent';
     //making new message
     const newMessage = new Message({
       conversation: conversation?._id,
       sender,
       text,
+      status: messageStatus,
     });
     await newMessage.save();
 
@@ -55,7 +61,6 @@ async function createConversation(req, res) {
     if (populatedMessage && io && receiverId) {
       const conversationId = conversation._id.toString();
       const clientsInRoom = io.sockets.adapter.rooms.get(conversationId); //here get the socketId of the users who are in this room
-      const receiverSocketId = users.get(receiverUid);
       const receiverIsInRoom =
         clientsInRoom &&
         receiverSocketId &&
@@ -96,10 +101,6 @@ async function createConversation(req, res) {
         },
       })
       .populate('participants');
-
-    //sending socket event to update chatList
-    const senderSocketId = users.get(senderUid);
-    const receiverSocketId = users.get(receiverUid);
 
     //sending event to the text sender to update the chatList
     if (senderSocketId) {

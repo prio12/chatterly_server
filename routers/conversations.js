@@ -24,4 +24,9 @@ router.get('/messages/between', getMessages);
 //mark a conversation as read
 router.patch('/:id/read', markConversationAsRead);
 
+//delete all messages
+// router.delete('/messages/delete', async (req, res) => {
+//   await Message.deleteMany({});
+// });
+
 module.exports = router;
