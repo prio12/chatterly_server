@@ -26,6 +26,32 @@ async function handleUserOnline(uid, io) {
   io.emit('messagesDeliveredUpdate', { userId: user._id, conversationIds });
 }
 
+//emit an event to message sender in realtime when a user sees a message
+async function handleMessageSeenBy({ conversationId, userId, io }) {
+  try {
+    await Message.updateMany(
+      {
+        conversation: conversationId,
+        seenBy: { $ne: userId },
+      },
+      { $addToSet: { seenBy: userId } }
+    );
+
+    let conversation = await Conversation.findById(conversationId);
+    conversation.unreadCounts.set(userId, 0);
+    await conversation.save();
+
+    // Notify all other users in that chat in real-time
+    io.to(conversationId).emit('messagesReadUpdate', {
+      conversationId,
+      userId,
+    });
+  } catch (error) {
+    console.log(error, 'getting this error!');
+  }
+}
+
 module.exports = {
   handleUserOnline,
+  handleMessageSeenBy,
 };
