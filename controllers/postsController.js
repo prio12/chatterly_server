@@ -63,24 +63,29 @@ async function getAllPosts(req, res) {
   const skip = (page - 1) * limit;
 
   try {
-    const result = await Post.find({})
+    let query = Post.find({})
       .populate('author')
       .populate('likes')
       .populate({
         path: 'comments.user',
       })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(Number(limit));
+      .sort({ createdAt: -1 });
+
+    if (Number(limit) > 0) {
+      query = query.skip(skip).limit(Number(limit));
+    }
+
+    const result = await query;
 
     const total = await Post.countDocuments({});
-    const hasMore = page * limit < total;
+    const hasMore = Number(limit) > 0 ? page * limit < total : false;
 
     res.status(200).json({
       result,
       hasMore,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({
       success: false,
       error: 'Internal Server Error. Please try again later.',
