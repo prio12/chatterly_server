@@ -20,22 +20,39 @@ async function addNewUser(req, res, next) {
 async function getUserByUid(req, res, next) {
   const query = { uid: req.params.uid };
   try {
-    const user = await User.findOne(query).populate({
-      path: 'posts',
-      options: { sort: { createdAt: -1 } },
-      populate: [
-        {
-          path: 'author',
-          select: 'name profilePicture uid likes',
-        },
-        {
-          path: 'likes',
-        },
-        {
-          path: 'comments.user',
-        },
-      ],
-    });
+    const user = await User.findOne(query)
+      .populate({
+        path: 'posts',
+        options: { sort: { createdAt: -1 } },
+        populate: [
+          {
+            path: 'author',
+            select: 'name profilePicture uid likes',
+          },
+          {
+            path: 'likes',
+          },
+          {
+            path: 'comments.user',
+          },
+        ],
+      })
+      .populate({
+        path: 'likedPosts',
+        options: { sort: { createdAt: -1 } },
+        populate: [
+          {
+            path: 'author',
+            select: 'name profilePicture uid likes',
+          },
+          {
+            path: 'likes',
+          },
+          {
+            path: 'comments.user',
+          },
+        ],
+      });
 
     if (!user) {
       return res.status(404).json({
