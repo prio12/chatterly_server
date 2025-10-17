@@ -142,9 +142,20 @@ async function updateAPost(req, res) {
     const response = await Post.findByIdAndUpdate(_id, updatedDoc, {
       new: true,
     });
+    await response.populate([
+      { path: 'author' },
+      { path: 'likes' },
+      { path: 'comments.user' },
+    ]);
 
-    // Emit event
-    ioInstance.emit('postInteraction', { success: true });
+    if (response) {
+      // Emit event
+      ioInstance.emit('postInteraction', {
+        success: true,
+        updatedPost: response,
+        isDeleted: false,
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -178,15 +189,35 @@ async function deleteAPost(req, res) {
     const authorId = post.author;
 
     //deleting the post from postCollection
-    await Post.findByIdAndDelete(postId);
+    const response = await Post.findByIdAndDelete(postId);
+    await response.populate([
+      { path: 'author' },
+      { path: 'likes' },
+      { path: 'comments.user' },
+    ]);
+
+    if (response) {
+      // Emit event
+      ioInstance.emit('postInteraction', {
+        success: true,
+        updatedPost: response,
+        isDeleted: false,
+      });
+    }
 
     //Remove the post reference from the correct user's (author's) posts array
     await User.findByIdAndUpdate(authorId, {
       $pull: { posts: postId },
     });
 
-    // Emit event
-    ioInstance.emit('postInteraction', { success: true });
+    if (response) {
+      // Emit event
+      ioInstance.emit('postInteraction', {
+        success: true,
+        updatedPost: response,
+        isDeleted: true,
+      });
+    }
 
     //sending response
     res.status(200).json({
@@ -211,6 +242,7 @@ async function handleLikeAndNotify(req, res) {
   try {
     const post = await Post.findById(postId);
     const user = await User.findById(userId);
+    let updatedPost;
 
     if (!post) {
       return res.status(400).json({
@@ -238,7 +270,12 @@ async function handleLikeAndNotify(req, res) {
         (id) => id.toString() !== postId.toString()
       );
 
-      await post.save();
+      updatedPost = await post.save();
+      await updatedPost.populate([
+        { path: 'author' },
+        { path: 'likes' },
+        { path: 'comments.user' },
+      ]);
       await user.save();
 
       res.status(200).json({
@@ -254,7 +291,12 @@ async function handleLikeAndNotify(req, res) {
       post.likes.push(userId);
       user.likedPosts.push(postId);
 
-      await post.save();
+      updatedPost = await post.save();
+      await updatedPost.populate([
+        { path: 'author' },
+        { path: 'likes' },
+        { path: 'comments.user' },
+      ]);
       await user.save();
 
       //  Lazy import here to break the circular dependency
@@ -269,7 +311,14 @@ async function handleLikeAndNotify(req, res) {
       });
     }
     //emitting an event via socket to get updated post to all connected users
-    await ioInstance.emit('postInteraction', { success: true });
+    if (updatedPost) {
+      // Emit event
+      ioInstance.emit('postInteraction', {
+        success: true,
+        updatedPost: updatedPost,
+        isDeleted: false,
+      });
+    }
   } catch (error) {
     res.status({ success: false, error: 'Something went wrong!' });
   }
@@ -297,6 +346,11 @@ async function addCommentToAPost(req, res) {
 
     post.comments.push(comment);
     const updatedPost = await post.save();
+    await updatedPost.populate([
+      { path: 'author' },
+      { path: 'likes' },
+      { path: 'comments.user' },
+    ]);
 
     // Ensure handleCommentNotification completes before sending the response
     const { handleCommentNotification } = require('./notificationsController');
@@ -307,8 +361,14 @@ async function addCommentToAPost(req, res) {
       authorUid,
     });
 
-    // Emit event
-    ioInstance.emit('postInteraction', { success: true });
+    if (updatedPost) {
+      // Emit event
+      ioInstance.emit('postInteraction', {
+        success: true,
+        updatedPost,
+        isDeleted: false,
+      });
+    }
 
     // Send response only after everything is done
     res.status(200).json({
@@ -316,6 +376,7 @@ async function addCommentToAPost(req, res) {
       updatedPost,
     });
   } catch (error) {
+    console.log(error, 'from comment');
     res.status(500).json({
       success: false,
       error: error,
@@ -358,9 +419,20 @@ async function editComment(req, res) {
 
     //save the post
     const response = await post.save();
+    await response.populate([
+      { path: 'author' },
+      { path: 'likes' },
+      { path: 'comments.user' },
+    ]);
 
-    // Emit event
-    ioInstance.emit('postInteraction', { success: true });
+    if (response) {
+      // Emit event
+      ioInstance.emit('postInteraction', {
+        success: true,
+        updatedPost: response,
+        isDeleted: false,
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -398,10 +470,21 @@ async function deleteAComment(req, res) {
     );
 
     //saving the post
-    await post.save();
+    const response = await post.save();
+    await response.populate([
+      { path: 'author' },
+      { path: 'likes' },
+      { path: 'comments.user' },
+    ]);
 
-    // Emit event
-    ioInstance.emit('postInteraction', { success: true });
+    if (response) {
+      // Emit event
+      ioInstance.emit('postInteraction', {
+        success: true,
+        updatedPost: response,
+        isDeleted: false,
+      });
+    }
 
     res.status(200).json({
       success: true,
