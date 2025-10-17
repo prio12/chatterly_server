@@ -48,6 +48,11 @@ const postsSchema = new Schema(
         },
       },
     ],
+    thoughtMode: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   {
     timestamps: true,
