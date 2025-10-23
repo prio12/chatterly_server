@@ -2,6 +2,15 @@ const User = require('../models/usersModel');
 
 //post every new user when signs up
 async function addNewUser(req, res, next) {
+  const { email, uid } = req.body;
+
+  const userExists = await User.findOne({ uid, email });
+  if (userExists) {
+    return res.status(409).json({
+      success: false,
+      message: 'User already exists. Please sign in instead.',
+    });
+  }
   const user = new User(req.body);
   //saving the user to db
   try {
