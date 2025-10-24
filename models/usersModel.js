@@ -18,6 +18,11 @@ const usersSchema = new Schema(
       type: String,
       required: true,
     },
+    isGoogleSignIn: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     profilePicture: {
       type: String,
       default: '',
