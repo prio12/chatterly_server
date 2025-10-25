@@ -36,6 +36,11 @@ async function createAPost(req, res) {
   try {
     const newPost = new Post(req.body);
     const result = await newPost.save();
+    await result.populate([
+      { path: 'author' },
+      { path: 'likes' },
+      { path: 'comments.user' },
+    ]);
 
     await User.findByIdAndUpdate(author, {
       $push: { posts: result._id },
@@ -49,7 +54,7 @@ async function createAPost(req, res) {
     }
 
     //emit the event to broadcast the new post to all connected users
-    await ioInstance.emit('newPost', { success: true });
+    await ioInstance.emit('newPost', { success: true, newPost: result });
   } catch (error) {
     res.status(400).json({
       error: error.message,
