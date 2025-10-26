@@ -263,6 +263,8 @@ async function markConversationAsRead(req, res) {
 async function editMessage(req, res) {
   const { message, editedMessage } = req.body;
   const _id = message?._id;
+
+  const io = getIo();
   try {
     const storedMessage = await Message.findById(_id);
     if (!storedMessage) {
@@ -280,12 +282,23 @@ async function editMessage(req, res) {
       { new: true }
     );
 
+    const populatedMessage = await Message.findById(response._id)
+      .populate({ path: 'sender', select: '_id uid profilePicture name' })
+      .populate({ path: 'seenBy', select: '_id' });
+
+    io.to(populatedMessage.conversation.toString()).emit('messageEdited', {
+      updatedMessage: populatedMessage,
+    });
+
     res.status(200).json({
       success: true,
       response,
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!' || error.message,
+    });
   }
 }
 
