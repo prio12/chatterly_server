@@ -259,9 +259,15 @@ async function markConversationAsRead(req, res) {
   }
 }
 
+//edit a message
+async function editMessage(req, res) {
+  console.log(req.body);
+}
+
 module.exports = {
   createConversation,
   getUserConversations,
   markConversationAsRead,
   getMessages,
+  editMessage,
 };
