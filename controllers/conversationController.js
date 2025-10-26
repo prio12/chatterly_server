@@ -261,7 +261,32 @@ async function markConversationAsRead(req, res) {
 
 //edit a message
 async function editMessage(req, res) {
-  console.log(req.body);
+  const { message, editedMessage } = req.body;
+  const _id = message?._id;
+  try {
+    const storedMessage = await Message.findById(_id);
+    if (!storedMessage) {
+      return res.status(404).json({
+        success: false,
+        error: 'Message not found.',
+      });
+    }
+
+    const response = await Message.findByIdAndUpdate(
+      _id,
+      {
+        text: editedMessage,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      response,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 module.exports = {
