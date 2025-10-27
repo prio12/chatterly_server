@@ -302,10 +302,16 @@ async function editMessage(req, res) {
   }
 }
 
+//delete Single message
+async function deleteSingleMessage(req, res) {
+  console.log(req.params.id);
+}
+
 module.exports = {
   createConversation,
   getUserConversations,
   markConversationAsRead,
   getMessages,
   editMessage,
+  deleteSingleMessage,
 };

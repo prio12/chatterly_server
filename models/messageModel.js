@@ -16,6 +16,8 @@ const messageSchema = new Schema(
       default: 'sent',
     },
     seenBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    deletedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    isDeletedForEveryone: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

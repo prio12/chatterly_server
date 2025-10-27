@@ -8,6 +8,7 @@ const {
   markConversationAsRead,
   getMessages,
   editMessage,
+  deleteSingleMessage,
 } = require('../controllers/conversationController');
 
 //creating conversation route
@@ -27,6 +28,9 @@ router.patch('/:id/read', markConversationAsRead);
 
 //edit a message
 router.patch('/message/edit', editMessage);
+
+//delete single message
+router.patch('/message/delete/:id', deleteSingleMessage);
 
 //delete all messages
 // router.delete('/messages/delete', async (req, res) => {
