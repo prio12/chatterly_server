@@ -304,7 +304,56 @@ async function editMessage(req, res) {
 
 //delete Single message
 async function deleteSingleMessage(req, res) {
-  console.log(req.params.id);
+  const messageId = req.params.id;
+  const { userId, status } = req.body;
+  const io = getIo();
+
+  try {
+    let updatedDoc;
+
+    const targetedMessage = await Message.findById(messageId);
+    if (!targetedMessage) {
+      return res.status(404).json({
+        success: false,
+        error: 'Message not found!',
+      });
+    }
+
+    // setting updated doc conditionally
+    if (
+      targetedMessage.sender.toString() === userId &&
+      status === 'deleteForEveryone'
+    ) {
+      updatedDoc = { isDeletedForEveryone: true };
+    } else {
+      updatedDoc = {
+        $set: { deletedBy: userId },
+      };
+    }
+
+    //update the message
+    const updatedMessage = await Message.findByIdAndUpdate(
+      messageId,
+      updatedDoc,
+      { new: true }
+    )
+      .populate({ path: 'sender', select: '_id uid profilePicture name' })
+      .populate({ path: 'seenBy', select: '_id' });
+
+    io.to(updatedMessage.conversation.toString()).emit('messageDeleted', {
+      updatedMessage: updatedMessage,
+    });
+    res.status(200).json({
+      success: true,
+      updatedMessage,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
 }
 
 module.exports = {
