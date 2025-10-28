@@ -356,6 +356,13 @@ async function deleteSingleMessage(req, res) {
   }
 }
 
+//delete all messages
+async function deleteAllMessages(req, res) {
+  const conversationId = req.params.id;
+  console.log(conversationId, 'conversationId');
+  console.log(req.body, "it's body");
+}
+
 module.exports = {
   createConversation,
   getUserConversations,
@@ -363,4 +370,5 @@ module.exports = {
   getMessages,
   editMessage,
   deleteSingleMessage,
+  deleteAllMessages,
 };
