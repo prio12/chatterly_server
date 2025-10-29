@@ -14,6 +14,7 @@ const conversationSchema = new Schema(
       of: Number,
       default: {},
     },
+    deletedBy: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
 
   { timestamps: true }

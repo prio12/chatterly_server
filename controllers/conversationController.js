@@ -130,7 +130,9 @@ async function createConversation(req, res) {
 async function getUserConversations(req, res) {
   const _id = req.params.id;
   try {
-    const conversations = await Conversation.find({ participants: _id })
+    const conversations = await Conversation.find({
+      participants: _id,
+    })
       .sort({
         updatedAt: -1,
       })
@@ -142,13 +144,46 @@ async function getUserConversations(req, res) {
         },
       });
 
+    //here I need help
+
     const filteredConversations = conversations.filter(
       (conversation) => conversation.lastMessage !== null
     );
 
+    if (filteredConversations?.length === 0) {
+      return res.status(200).json({
+        success: true,
+        conversations: filteredConversations,
+      });
+    }
+
+    // Step 3: find only those with at least one visible (non-deleted) message
+    const visibleConversations = await Promise.all(
+      filteredConversations.map(async (conversation) => {
+        const messages = await Message.find({
+          conversation: conversation._id,
+          deletedBy: { $nin: [_id] },
+        }).limit(1); // we only need to check if at least one exists
+
+        if (messages.length > 0) {
+          // repopulate the conversation so we send a clean, full doc
+          return await Conversation.findById(conversation._id)
+            .populate('participants')
+            .populate({
+              path: 'lastMessage',
+              populate: { path: 'sender' },
+            });
+        } else {
+          return null;
+        }
+      })
+    );
+
+    const filteredVisibleConversations = visibleConversations.filter(Boolean);
+
     res.status(200).json({
       success: true,
-      conversations: filteredConversations,
+      conversations: filteredVisibleConversations,
     });
   } catch (error) {
     res.status(500).json({
@@ -359,8 +394,48 @@ async function deleteSingleMessage(req, res) {
 //delete all messages
 async function deleteAllMessages(req, res) {
   const conversationId = req.params.id;
-  console.log(conversationId, 'conversationId');
-  console.log(req.body, "it's body");
+  const { userId, uid } = req.body;
+  const io = getIo();
+  const users = getUsers();
+
+  try {
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({
+        success: false,
+        error: 'Conversation not found!',
+      });
+    }
+    // const updatedConversation = await Conversation.findByIdAndUpdate(
+    //   conversationId,
+    //   { $set: { deletedBy: userId } },
+    //   { new: true }
+    // );
+
+    await Message.updateMany(
+      {
+        conversation: conversation?._id,
+        deletedBy: { $nin: [userId] },
+      },
+      {
+        $addToSet: { deletedBy: userId },
+      }
+    );
+
+    const userSocketId = users.get(uid);
+    //send socket event to the user
+    io.to(userSocketId).emit('deletedAllMessages', conversation);
+
+    res.status(200).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      error: 'Server Side Error!',
+    });
+  }
 }
 
 module.exports = {
