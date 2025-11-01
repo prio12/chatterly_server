@@ -9,7 +9,15 @@ const messageSchema = new Schema(
       required: true,
     },
     sender: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    text: String,
+    // text: String,
+    text: {
+      type: String,
+      default: '',
+    },
+    image: {
+      type: String,
+      default: '',
+    },
     status: {
       type: String,
       enum: ['sent', 'delivered'],

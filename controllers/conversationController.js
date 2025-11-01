@@ -10,16 +10,21 @@ async function createConversation(req, res) {
   //getting io to emit and event
   const io = getIo();
 
-  const { participants, sender, text, senderUid, receiverUid } = req.body;
+  const { participants, sender, text, senderUid, receiverUid, image } =
+    req.body;
 
   const senderSocketId = users.get(senderUid);
   const receiverSocketId = users.get(receiverUid);
 
   const receiverId = participants.find((_id) => _id !== sender);
 
-  if (!(participants && participants.length > 1) || !sender || !text) {
+  if (
+    !(participants && participants.length > 1) ||
+    !sender ||
+    (!text && !image)
+  ) {
     return res.status(400).json({
-      error: 'Minimum two participants, sender and text required',
+      error: 'Minimum two participants, sender and text or image required',
     });
   }
   try {
@@ -49,6 +54,7 @@ async function createConversation(req, res) {
       conversation: conversation?._id,
       sender,
       text,
+      image,
       status: messageStatus,
     });
     await newMessage.save();
