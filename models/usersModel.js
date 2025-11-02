@@ -78,7 +78,6 @@ const usersSchema = new Schema(
         ref: 'Post',
       },
     ],
-    isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,
