@@ -61,6 +61,11 @@ const usersSchema = new Schema(
       default: '',
       trim: true,
     },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
     posts: [
       {
         type: Schema.Types.ObjectId,
@@ -73,6 +78,7 @@ const usersSchema = new Schema(
         ref: 'Post',
       },
     ],
+    isDeleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,

@@ -5,6 +5,7 @@ const {
   updateUserInfo,
   getUserByUid,
   getAllUsers,
+  deleteUser,
 } = require('../controllers/usersController');
 const verifyJwtToken = require('../middlewares/verifyJwtToken');
 
@@ -23,5 +24,8 @@ router.get('/users/:uid', verifyJwtToken, getUserByUid);
 
 //update any field of a specific user eg:(profile pic, cover photo, bio)
 router.patch('/users/:uid', verifyJwtToken, updateUserInfo);
+
+//update a user as deleted user from admin request
+router.patch('/users/delete/:id', deleteUser);
 
 module.exports = router;

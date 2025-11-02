@@ -201,15 +201,6 @@ async function deleteAPost(req, res) {
       { path: 'comments.user' },
     ]);
 
-    if (response) {
-      // Emit event
-      ioInstance.emit('postInteraction', {
-        success: true,
-        updatedPost: response,
-        isDeleted: false,
-      });
-    }
-
     //Remove the post reference from the correct user's (author's) posts array
     await User.findByIdAndUpdate(authorId, {
       $pull: { posts: postId },

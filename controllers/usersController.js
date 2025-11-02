@@ -140,9 +140,16 @@ async function getAllUsers(req, res, next) {
     });
   }
 }
+
+//update a user as deleted user from admin request
+async function deleteUser(req, res) {
+  const id = req.params.id;
+  console.log(id);
+}
 module.exports = {
   addNewUser,
   updateUserInfo,
   getUserByUid,
   getAllUsers,
+  deleteUser,
 };
