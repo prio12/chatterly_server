@@ -63,6 +63,7 @@ const initializeSocket = (httpServer) => {
     });
 
     socket.on('messagesRead', async ({ conversationId, userId }) => {
+      if (!conversationId || !userId) return;
       await handleMessageSeenBy({ conversationId, userId, io });
     });
 
