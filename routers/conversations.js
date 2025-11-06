@@ -11,6 +11,7 @@ const {
   deleteSingleMessage,
   deleteAllMessages,
 } = require('../controllers/conversationController');
+const User = require('../models/usersModel');
 
 //creating conversation route
 const router = express.Router();
@@ -35,10 +36,5 @@ router.patch('/message/delete/:id', deleteSingleMessage);
 
 //delete all messages
 router.patch('/message/deleteAll/:id', deleteAllMessages);
-
-//delete all messages
-// router.delete('/messages/delete', async (req, res) => {
-//   await Message.deleteMany({});
-// });
 
 module.exports = router;
