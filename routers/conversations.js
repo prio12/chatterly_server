@@ -17,24 +17,24 @@ const User = require('../models/usersModel');
 const router = express.Router();
 
 //init a conversation
-router.post('/', createConversation);
+router.post('/', verifyJwtToken, createConversation);
 
 //get all conversations of a specific user
-router.get('/:id', getUserConversations);
+router.get('/:id', verifyJwtToken, getUserConversations);
 
 //get all messages of a specific conversation
-router.get('/messages/between', getMessages);
+router.get('/messages/between', verifyJwtToken, getMessages);
 
 //mark a conversation as read
-router.patch('/:id/read', markConversationAsRead);
+router.patch('/:id/read', verifyJwtToken, markConversationAsRead);
 
 //edit a message
-router.patch('/message/edit', editMessage);
+router.patch('/message/edit', verifyJwtToken, editMessage);
 
 //delete single message
-router.patch('/message/delete/:id', deleteSingleMessage);
+router.patch('/message/delete/:id', verifyJwtToken, deleteSingleMessage);
 
 //delete all messages
-router.patch('/message/deleteAll/:id', deleteAllMessages);
+router.patch('/message/deleteAll/:id', verifyJwtToken, deleteAllMessages);
 
 module.exports = router;

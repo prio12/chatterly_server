@@ -17,6 +17,6 @@ router.post('/', verifyJwtToken, addANewStory);
 router.get('/:id', verifyJwtToken, getStories);
 
 //delete a specific user's story
-router.delete('/:id', deleteAStory);
+router.delete('/:id', verifyJwtToken, deleteAStory);
 
 module.exports = router;
