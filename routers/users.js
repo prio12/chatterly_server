@@ -12,6 +12,11 @@ const verifyJwtToken = require('../middlewares/verifyJwtToken');
 
 const router = express.Router();
 
+// root route for server health check
+router.get('/', (req, res) => {
+  res.send('Chatterly Server is running!');
+});
+
 //add a new user to db after signing up for the first time
 router.post('/users', verifyJwtToken, addNewUser);
 

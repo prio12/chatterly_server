@@ -12,7 +12,7 @@ const httpServer = createServer(app);
 
 // request parsers
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
 
 //internal imports
 const usersRoute = require('./routers/users');
@@ -36,7 +36,7 @@ const connectDatabase = async () => {
   }
 };
 connectDatabase();
-
+//root route
 //all routes
 app.use('/', usersRoute);
 app.use('/posts', postsRoute);
@@ -46,6 +46,6 @@ app.use('/stories', storiesRoute);
 app.use('/conversations', conversationRoute);
 app.use('/jwt', jwtRoute); //jwt route
 
-httpServer.listen(process.env.PORT, () => {
+httpServer.listen(process.env.PORT || 5000, () => {
   console.log(`server is running on port ${process.env.PORT}`);
 });
