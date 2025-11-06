@@ -1,8 +1,6 @@
 // external imports
 const { Server } = require('socket.io');
 const { handleLikeAndNotify } = require('./controllers/postsController');
-const Conversation = require('./models/ConversationModel');
-const Message = require('./models/messageModel');
 const {
   handleUserOnline,
   handleMessageSeenBy,
