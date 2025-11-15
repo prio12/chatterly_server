@@ -97,6 +97,14 @@ The server should be running on `http://localhost:5000` (or your configured `POR
 
 ---
 
+---
+
+## 🔗 Related Repositories
+
+- **[Chatterly Client](https://github.com/prio12/Chatterly_Client)** - Front End with React, firebase, tailwind, cloudinary
+
+---
+
 ## 📝 Notes
 
 - Ensure MongoDB Atlas is running and accessible.
